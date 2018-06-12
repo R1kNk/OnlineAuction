@@ -21,6 +21,7 @@ namespace SOOS_Auction
             RouteConfig.RegisterRoutes(RouteTable.Routes);
             BundleConfig.RegisterBundles(BundleTable.Bundles);
             Database.SetInitializer<AuctionContext>(new AuctionDatabaseInitializer());
+            Database.SetInitializer<ApplicationDbContext>(new ApplicationDBContextInitializer());
         }
     }
 }

@@ -69,6 +69,19 @@ namespace SOOS_Auction.AuctionGoogleDrive
             var file = request.ResponseBody;
             return file.Id; 
         }
-        
+        public static Permission MakeFilePublic(string fileId)
+        {
+            var request = auctionService.Permissions.List(fileId);
+            var res = auctionService.Permissions.List(fileId).Execute();
+            var hasReadPermission = res.Permissions.Any(p => p.Role == "reader");
+            if (!hasReadPermission)
+            {
+                var publicPermission = SharedAPIMethods.CreatePublicPermission();
+                var result = auctionService.Permissions.Create(publicPermission, fileId).Execute();
+                return result;
+            }
+            return null;
+        }
+
     }
 }

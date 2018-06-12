@@ -12,9 +12,11 @@ namespace SOOS_Auction.Controllers
 {
     public class HomeController : Controller
     {
-
+        [Authorize(Roles ="admin,moder")]
         public ActionResult Index()
         {
+            ApplicationDBContext contt = new ApplicationDBContext();
+            
             //ApiFunctions.GetFiles();
             return View();
         }
@@ -73,8 +75,8 @@ namespace SOOS_Auction.Controllers
                     {
                         Guid guid = Guid.NewGuid();
                         file.SaveAs($@"{__filepath}\{guid}.{file.FileName}");
-                        string fileId = ApiFunctions.Upload("lul", $@"{__filepath}\{guid}.{file.FileName}", file.ContentType);
-                        ApiFunctions.MakeFilePublic(fileId);
+                        string fileId = ApiMethods.Upload("lul", $@"{__filepath}\{guid}.{file.FileName}", file.ContentType);
+                        ApiMethods.MakeFilePublic(fileId);
                         result.Files.Add("https://drive.google.com/uc?id=" + fileId);
                         System.IO.File.Delete($@"{__filepath}\{guid}.{file.FileName}");
                     }

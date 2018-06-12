@@ -1,0 +1,55 @@
+﻿@model IEnumerable<SOOS_Auction.Models.ApplicationUser>
+
+<h1 class="modal-title">
+    Список пользователей
+</h1>
+<table class="table">
+    <tr>
+        <th>
+            @Html.DisplayNameFor(model => model.Email)
+        </th>
+        <th>
+            @Html.DisplayNameFor(model => model.UserName)
+        </th>
+        <th>
+            @Html.DisplayNameFor(model => model.Gender)
+        </th>
+        <th>
+            @Html.DisplayNameFor(model => model.TelephoneNumber)
+        </th>
+        <th></th>
+    </tr>
+
+@foreach (var item in Model) {
+    <tr>
+        <td>
+            @Html.DisplayFor(modelItem => item.Email)
+        </td>
+ 
+        <td>
+            @Html.DisplayFor(modelItem => item.UserName)
+        </td>
+        <td>
+            @Html.DisplayFor(modelItem => item.Gender)
+        </td>
+        <td>
+            @Html.DisplayFor(modelItem => item.TelephoneNumber)
+        </td>
+        @if (User.IsInRole("admin"))
+        {
+        <td>
+            @Html.ActionLink("Подробнее о пользователе", "UserDetails", new { mail = item.Email }) |
+            @Html.ActionLink("Изменить", "UserEdit", new { mail = item.Email }) |
+            @Html.ActionLink("Удалить", "UserDelete", new { mail = item.Email })
+        </td>
+        }
+        else
+        {
+        <td>
+            @Html.ActionLink("UserDetails", "UserDetails", new { mail = item.Email })
+        </td>
+        }
+    </tr>
+}
+
+</table>

@@ -229,12 +229,15 @@
     <Compile Include="AuctionDatabase\Models\Category.cs" />
     <Compile Include="AuctionDatabase\Models\Lot.cs" />
     <Compile Include="AuctionDatabase\Models\Section.cs" />
+    <Compile Include="AuctionDatabase\Shared\ApplicationDBContextInitializer.cs" />
     <Compile Include="AuctionDatabase\Shared\AuctionDatabaseInitializer.cs" />
-    <Compile Include="AuctionDatabase\Shared\DropCreateIfDatabaseEmpty.cs" />
+    <Compile Include="AuctionDatabase\Shared\DropCreateIfEmpty.cs" />
     <Compile Include="AuctionDatabase\Shared\SharedContextMethods.cs" />
     <Compile Include="AuctionGoogleDrive\ApiMethods.cs" />
     <Compile Include="AuctionGoogleDrive\SharedAPIMethods.cs" />
     <Compile Include="Controllers\AccountController.cs" />
+    <Compile Include="Controllers\ApplicationDBContext.cs" />
+    <Compile Include="Controllers\AuctionManagerController.cs" />
     <Compile Include="Controllers\HomeController.cs" />
     <Compile Include="Controllers\LotsController.cs" />
     <Compile Include="Controllers\ManageController.cs" />
@@ -315,6 +318,10 @@
     <Content Include="Views\Lots\Details.cshtml" />
     <Content Include="Views\Lots\Edit.cshtml" />
     <Content Include="Views\Lots\Index.cshtml" />
+    <Content Include="Views\AuctionManager\Users.cshtml" />
+    <Content Include="Views\AuctionManager\Index.cshtml" />
+    <Content Include="Views\AuctionManager\UserDetails.cshtml" />
+    <Content Include="Views\AuctionManager\UserEdit.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />

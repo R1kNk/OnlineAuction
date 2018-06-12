@@ -49,9 +49,9 @@ namespace SOOS_Auction.Models
     public class LoginViewModel
     {
         [Required]
-        [Display(Name = "Email")]
-        [EmailAddress]
-        public string Email { get; set; }
+        [StringLength(20,ErrorMessage ="Длина имени не должна превышать 20 символов!")]
+        [Display(Name = "UserName")]
+        public string UserName { get; set; }
 
         [Required]
         [DataType(DataType.Password)]
@@ -64,21 +64,68 @@ namespace SOOS_Auction.Models
 
     public class RegisterViewModel
     {
-        [Required]
-        [EmailAddress]
-        [Display(Name = "Email")]
+        [Required(ErrorMessage ="Поле электронной почты должно быть заполнено")]
+        [StringLength(20, ErrorMessage = "Длина имени не должна превышать 20 символов!")]
+        [Display(Name = "Электронная почта")]
         public string Email { get; set; }
 
         [Required]
-        [StringLength(100, ErrorMessage = "The {0} must be at least {2} characters long.", MinimumLength = 6)]
+        [Display(Name = "Логин пользователя")]
+        public string UserName { get; set; }
+
+        [Required]
+        [StringLength(100, ErrorMessage = "{0} должен иметь длину как минимум {2} символов.", MinimumLength = 6)]
         [DataType(DataType.Password)]
-        [Display(Name = "Password")]
+        [Display(Name = "Пароль")]
         public string Password { get; set; }
 
+        [Required]
         [DataType(DataType.Password)]
-        [Display(Name = "Confirm password")]
-        [Compare("Password", ErrorMessage = "The password and confirmation password do not match.")]
+        [Display(Name = "Подтверждение пароля")]
+        [Compare("Password", ErrorMessage = "Поле подтверждения пароля не совпадает с паролем")]
         public string ConfirmPassword { get; set; }
+
+        [Required]
+        [Display(Name = "Пол")]
+        public string Gender { get; set; }
+
+        [Required]
+        [RegularExpression(@"^(\+375|80)(29|25|44|33)(\d{3})(\d{2})(\d{2})$", ErrorMessage = "Номер телефона введен некорректно")]
+        [Display(Name ="Номер телефона")]
+        public string TelephoneNumber { get; set; }
+    }
+
+    public class UserViewModel
+    {
+        [Required]
+        [StringLength(20, ErrorMessage = "Длина имени не должна превышать 20 символов!")]
+        [Display(Name = "Электронная почта")]
+        public string Email { get; set; }
+
+        [Required]
+        [Display(Name = "Логин пользователя")]
+        public string UserName { get; set; }
+
+        [Required]
+        [Display(Name = "Пол")]
+        public string Gender { get; set; }
+
+        [Required]
+        [RegularExpression(@"^(\+375|80)(29|25|44|33)(\d{3})(\d{2})(\d{2})$", ErrorMessage = "Номер телефона введен некорректно")]
+        [Display(Name = "Номер телефона")]
+        public string TelephoneNumber { get; set; }
+
+        public List<string> Roles { get; set; }
+    }
+
+    public class UserEditModel : UserViewModel
+    {
+        [Display(Name ="Роль: Админ")]
+        public bool AdminRole { get; set; }
+
+        [Display(Name = "Роль: Модератор")]
+        public bool ModerRole { get; set; }
+
     }
 
     public class ResetPasswordViewModel
