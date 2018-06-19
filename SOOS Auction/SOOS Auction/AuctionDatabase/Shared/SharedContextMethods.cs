@@ -19,7 +19,7 @@ namespace SOOS_Auction.AuctionDatabase.Shared
         static public bool isDatabaseEmpty(this AuctionContext context)
         {
             if (!context.Database.Exists()) { context.Database.Create(); return true; }
-            if (isLotsTableEmpty(context))
+            if (isLotsTableEmpty(context) && isBidsTableEmpty(context) && isLotsReceivingTableEmpty(context) && isCategoriesTableEmpty(context)&& isSectionsTableEmpty(context))
                 return true;
             return false;
         }
@@ -33,6 +33,54 @@ namespace SOOS_Auction.AuctionDatabase.Shared
         {
             if (!context.Database.Exists()) { context.Database.Create(); return true; }
             if (context.Lots.ToList().Count == 0) return true;
+            return false;
+        }
+
+        /// <summary>
+        /// is Bids table contains data
+        /// </summary>
+        /// <param name="context"></param>
+        /// <returns></returns>
+        static public bool isBidsTableEmpty(AuctionContext context)
+        {
+            if (!context.Database.Exists()) { context.Database.Create(); return true; }
+            if (context.Bids.ToList().Count == 0) return true;
+            return false;
+        }
+
+        /// <summary>
+        /// is Lots receiving table contains data
+        /// </summary>
+        /// <param name="context"></param>
+        /// <returns></returns>
+        static public bool isLotsReceivingTableEmpty(AuctionContext context)
+        {
+            if (!context.Database.Exists()) { context.Database.Create(); return true; }
+            if (context.LotsReceivings.ToList().Count == 0) return true;
+            return false;
+        }
+
+        /// <summary>
+        /// is Categories table contains data
+        /// </summary>
+        /// <param name="context"></param>
+        /// <returns></returns>
+        static public bool isCategoriesTableEmpty(AuctionContext context)
+        {
+            if (!context.Database.Exists()) { context.Database.Create(); return true; }
+            if (context.Categories.ToList().Count == 0) return true;
+            return false;
+        }
+
+        /// <summary>
+        /// is Sections table contains data
+        /// </summary>
+        /// <param name="context"></param>
+        /// <returns></returns>
+        static public bool isSectionsTableEmpty(AuctionContext context)
+        {
+            if (!context.Database.Exists()) { context.Database.Create(); return true; }
+            if (context.Sections.ToList().Count == 0) return true;
             return false;
         }
 

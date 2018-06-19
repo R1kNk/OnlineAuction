@@ -59,9 +59,20 @@ namespace SOOS_Auction.AuctionGoogleDrive
                   new FileDataStore(CredentialPath, true)).Result;
             }
         }
-        public static DriveService GetDriveService(UserCredential credential, string ApplicationName)
+        public static DriveService GetDriveServicev3(UserCredential credential, string ApplicationName)
         {
             return new DriveService(new BaseClientService.Initializer()
+            {
+                HttpClientInitializer = credential,
+                ApplicationName = ApplicationName,
+            }
+                );
+
+        }
+
+        public static Google.Apis.Drive.v2.DriveService GetDriveServicev2(UserCredential credential, string ApplicationName)
+        {
+            return new Google.Apis.Drive.v2.DriveService(new BaseClientService.Initializer()
             {
                 HttpClientInitializer = credential,
                 ApplicationName = ApplicationName,

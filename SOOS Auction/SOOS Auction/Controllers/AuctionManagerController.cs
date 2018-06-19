@@ -1,9 +1,11 @@
 ﻿using Microsoft.AspNet.Identity;
 using Microsoft.AspNet.Identity.EntityFramework;
 using Microsoft.AspNet.Identity.Owin;
+using SOOS_Auction.AuctionDatabase.Models;
 using SOOS_Auction.Models;
 using System;
 using System.Collections.Generic;
+using System.Data.Entity;
 using System.Linq;
 using System.Net;
 using System.Web;
@@ -11,7 +13,7 @@ using System.Web.Mvc;
 
 namespace SOOS_Auction.Controllers
 {
-    [Authorize(Roles ="admin,moder")]
+    [Authorize(Roles ="admin, moder")]
     public class AuctionManagerController : Controller
     {
         private ApplicationSignInManager _signInManager;
@@ -157,6 +159,81 @@ namespace SOOS_Auction.Controllers
             {
                 return new HttpStatusCodeResult(HttpStatusCode.Conflict);
             }
+        }
+
+        public ActionResult Lots()
+        {
+            AuctionContext auctionContext = new AuctionContext();
+            List<Lot> lots = auctionContext.Lots.Include(p=>p.Category).ToList();
+            return View(lots);
+        }
+
+        [Authorize(Roles = "admin, moder")]
+        public ActionResult AcceptLot(int? id)
+        {
+            if (id == null) return new HttpStatusCodeResult(HttpStatusCode.BadRequest);
+            Lot findedLot;
+            AuctionContext context = new AuctionContext();
+
+            findedLot = context.Lots.Where(p => p.LotId == id).SingleOrDefault();
+            if (findedLot == null) return new HttpStatusCodeResult(HttpStatusCode.NotFound);
+            if (findedLot.State == "pending")
+            {
+                findedLot.State = "started";
+                findedLot.StartDate = DateTime.Now;
+                DateTime FinishDate = DateTime.Now;
+                FinishDate = FinishDate.AddDays(findedLot.DaysDuration);
+                findedLot.FinishDate = FinishDate;
+                context.SaveChanges();
+                return RedirectToAction("Lots", new { id = findedLot.LotId });
+
+            }
+            return new HttpStatusCodeResult(HttpStatusCode.BadRequest);
+        }
+
+        [Authorize(Roles = "admin, moder")]
+        public ActionResult RejectLot(int? id)
+        {
+            if (id == null) return new HttpStatusCodeResult(HttpStatusCode.BadRequest);
+            Lot findedLot;
+            AuctionContext context = new AuctionContext();
+
+            findedLot = context.Lots.Where(p => p.LotId == id).SingleOrDefault();
+            if (findedLot == null) return new HttpStatusCodeResult(HttpStatusCode.NotFound);
+            if (findedLot.State == "pending")
+            {
+                findedLot.State = "rejected";
+                context.SaveChanges();
+                return RedirectToAction("Lots", new { id = findedLot.LotId });
+            }
+            return new HttpStatusCodeResult(HttpStatusCode.BadRequest);
+        }
+
+        [Authorize(Roles = "admin")]
+        public ActionResult DeleteLot(int? id)
+        {
+            if (id == null) return new HttpStatusCodeResult(HttpStatusCode.BadRequest);
+            Lot findedLot;
+            AuctionContext context = new AuctionContext();
+
+            findedLot = context.Lots.Where(p => p.LotId == id).SingleOrDefault();
+            if (findedLot == null) return new HttpStatusCodeResult(HttpStatusCode.NotFound);
+            context.Lots.Remove(findedLot);
+            context.SaveChanges();
+            return RedirectToAction("Lots", new { id = findedLot.LotId });
+          
+        }
+
+        public ActionResult ModerLotDetails(int? id)
+        {
+            if (id == null) return new HttpStatusCodeResult(HttpStatusCode.BadRequest);
+            Lot findedLot;
+            AuctionContext context = new AuctionContext();
+
+            findedLot = context.Lots.Include(p=>p.Category).Include(p => p.LotPayment).Include(p => p.LotReceiving).Include(p => p.Bids).Where(p => p.LotId == id).SingleOrDefault();
+            if (findedLot == null) return new HttpStatusCodeResult(HttpStatusCode.NotFound);
+  
+            return View(findedLot);
         }
 
     }

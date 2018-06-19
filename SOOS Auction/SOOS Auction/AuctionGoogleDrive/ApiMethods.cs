@@ -15,11 +15,12 @@ using Google.Apis.Drive.v3.Data;
 
 namespace SOOS_Auction.AuctionGoogleDrive
 {
-    public class ApiMethods
+    public class FileApiMethods
     {
-        static ApiMethods()
+        static FileApiMethods()
         {
-            auctionService = SharedAPIMethods.GetDriveService(SharedAPIMethods.GetUserCredential(scopes),ApplicationName);
+            auctionService = SharedAPIMethods.GetDriveServicev3(SharedAPIMethods.GetUserCredential(scopes),ApplicationName);
+            auctionServicev2 = SharedAPIMethods.GetDriveServicev2(SharedAPIMethods.GetUserCredential(scopes), ApplicationName);
         }
         static string FolderMime = "application/vnd.google-apps.folder";
 
@@ -31,11 +32,10 @@ namespace SOOS_Auction.AuctionGoogleDrive
                                     DriveService.Scope.DriveScripts };
         private static string ApplicationName = "SoosAuction";
         private static DriveService auctionService;
-
+        private static Google.Apis.Drive.v2.DriveService auctionServicev2;
         public static IList<File> GetFiles()
         {
             IList<File> files = auctionService.Files.List().Execute().Files;
-
             foreach (var file in files)
             {
                 Debug.WriteLine(file.Id);
@@ -43,11 +43,24 @@ namespace SOOS_Auction.AuctionGoogleDrive
 
             return auctionService.Files.List().Execute().Files;
         }
-        public static string CreateFolder()
+
+        public static List<string> GetFilesIDFromFolder(string folderId)
+        {
+            var request = auctionServicev2.Children.List(folderId);
+            List<string> IDs = new List<string>();
+            var children = request.Execute();
+            if(children.Items!=null && children.Items.Count > 0)
+            {
+                foreach(var file in children.Items) { IDs.Add(file.Id); }
+            }
+            return IDs;
+            
+        }
+        public static string CreateFolder(int LotId)
         {
             var fileMetadata = new File()
             {
-                Name = "Invoices",
+                Name = LotId.ToString(),
                 MimeType = FolderMime
             };
             var request = auctionService.Files.Create(fileMetadata);

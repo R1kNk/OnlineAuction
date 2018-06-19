@@ -11,6 +11,7 @@ namespace SOOS_Auction.AuctionDatabase.Shared
 {
     public class DropCreateIfDatabaseEmpty : IDatabaseInitializer<AuctionContext>
     {
+
         public void InitializeDatabase(AuctionContext context)
         {
 

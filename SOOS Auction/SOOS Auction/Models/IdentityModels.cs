@@ -25,6 +25,10 @@ namespace SOOS_Auction.Models
         [Required]
         public string Gender { get; set; }
         public string TelephoneNumber { get; set; }
+        public string AvatarUrl { get; set; }
+        public int PositiveReview { get; set; }
+        public int NegativeReview { get; set; }
+        public string UserLocation { get; set; }
     }
 
     public class ApplicationDbContext : IdentityDbContext<ApplicationUser>

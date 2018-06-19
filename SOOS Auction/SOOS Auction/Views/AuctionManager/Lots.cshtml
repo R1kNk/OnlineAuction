@@ -1,11 +1,5 @@
 ﻿@model IEnumerable<SOOS_Auction.AuctionDatabase.Models.Lot>
 
-@{
-    ViewBag.Title = "Index";
-}
-
-<h2>Index</h2>
-
 <p>
     @Html.ActionLink("Create New", "Create")
 </p>
@@ -36,20 +30,12 @@
             @Html.DisplayNameFor(model => model.MinimalStep)
         </th>
         <th>
-            @Html.DisplayNameFor(model => model.Description)
-        </th>
-        <th>
             @Html.DisplayNameFor(model => model.StartDate)
-        </th>
-        <th>
-            @Html.DisplayNameFor(model => model.DaysDuration)
         </th>
         <th>
             @Html.DisplayNameFor(model => model.FinishDate)
         </th>
         <th>
-            @Html.DisplayNameFor(model => model.ImagesUrl)
-        </th>
         <th></th>
     </tr>
 
@@ -80,25 +66,31 @@
             @Html.DisplayFor(modelItem => item.MinimalStep)
         </td>
         <td>
-            @Html.DisplayFor(modelItem => item.Description)
-        </td>
-        <td>
             @Html.DisplayFor(modelItem => item.StartDate)
-        </td>
-        <td>
-            @Html.DisplayFor(modelItem => item.DaysDuration)
         </td>
         <td>
             @Html.DisplayFor(modelItem => item.FinishDate)
         </td>
+        @if (item.State == "pending")
+        {
+            <td>
+                @Html.ActionLink("Подробнее", "ModerLotDetails", new { id = item.LotId }) |
+                @Html.ActionLink("Принять лот", "AcceptLot", new { id = item.LotId }) |
+                @Html.ActionLink("Отклонить лот", "RejectLot", new { id = item.LotId })
+            </td>
+        }
+        else
+       {
         <td>
-            @Html.DisplayFor(modelItem => item.ImagesUrl)
+            @Html.ActionLink("Подробнее", "ModerLotDetails", new { id = item.LotId })
         </td>
+         }
+        @if (HttpContext.Current.User.IsInRole("admin"))
+        {
         <td>
-            @Html.ActionLink("Edit", "Edit", new { id=item.LotId }) |
-            @Html.ActionLink("Details", "Details", new { id=item.LotId }) |
-            @Html.ActionLink("Delete", "Delete", new { id=item.LotId })
+             @Html.ActionLink("Удалить лот", "DeleteLot", new { id = item.LotId })
         </td>
+        }
     </tr>
 }
 

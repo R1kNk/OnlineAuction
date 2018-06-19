@@ -25,6 +25,11 @@ namespace SOOS_Auction.Models
 
         public System.Data.Entity.DbSet<SOOS_Auction.AuctionDatabase.Models.Category> Categories { get; set; }
         public System.Data.Entity.DbSet<SOOS_Auction.AuctionDatabase.Models.Section> Sections { get; set; }
+        public System.Data.Entity.DbSet<SOOS_Auction.AuctionDatabase.Models.Bid> Bids { get; set; }
+        public System.Data.Entity.DbSet<SOOS_Auction.AuctionDatabase.Models.LotReceiving> LotsReceivings { get; set; }
+        public System.Data.Entity.DbSet<SOOS_Auction.AuctionDatabase.Models.LotPayment> LotPayments { get; set; }
+
+
 
     }
 }

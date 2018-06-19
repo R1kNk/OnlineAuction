@@ -93,6 +93,10 @@ namespace SOOS_Auction.Models
         [RegularExpression(@"^(\+375|80)(29|25|44|33)(\d{3})(\d{2})(\d{2})$", ErrorMessage = "Номер телефона введен некорректно")]
         [Display(Name ="Номер телефона")]
         public string TelephoneNumber { get; set; }
+
+        [Required]
+        [Display(Name = "Место проживания")]
+        public string UserLocation { get; set; }
     }
 
     public class UserViewModel
@@ -114,6 +118,10 @@ namespace SOOS_Auction.Models
         [RegularExpression(@"^(\+375|80)(29|25|44|33)(\d{3})(\d{2})(\d{2})$", ErrorMessage = "Номер телефона введен некорректно")]
         [Display(Name = "Номер телефона")]
         public string TelephoneNumber { get; set; }
+
+        [Required]
+        [Display(Name = "Место проживания")]
+        public string UserLocation { get; set; }
 
         public List<string> Roles { get; set; }
     }

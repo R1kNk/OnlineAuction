@@ -21,9 +21,9 @@ namespace SOOS_Auction.AuctionDatabase.Models
         public string State { get; set; }
 
         [Required]
-        public int UserId { get; set; }
+        public string UserId { get; set; }
 
-        public int WinnerId { get; set; }
+        public string WinnerId { get; set; }
 
         [Required]
         public double MinimalPrice { get; set; }
@@ -49,6 +49,14 @@ namespace SOOS_Auction.AuctionDatabase.Models
         public Category Category { get; set; }
 
         public string ImagesUrl { get; set; }
+
+        public List<Bid> Bids { get; set; }
+
+        [Required]
+        public virtual LotReceiving LotReceiving { get; set; }
+
+        [Required]
+        public virtual LotPayment LotPayment { get; set; }
 
     }
 }

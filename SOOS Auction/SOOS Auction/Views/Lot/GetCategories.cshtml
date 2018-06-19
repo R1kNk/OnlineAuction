@@ -1,0 +1,7 @@
+﻿@model List<SOOS_Auction.AuctionDatabase.Models.Category>
+<select id="category" name="CategoryId" class="form-control">
+    @foreach (var item in Model)
+    {
+        <option value="@item.CategoryId">@item.Name</option>
+    }
+</select>

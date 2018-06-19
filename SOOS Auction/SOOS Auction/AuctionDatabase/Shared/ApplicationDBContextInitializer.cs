@@ -9,7 +9,7 @@ using SOOS_Auction.Models;
 
 namespace SOOS_Auction.AuctionDatabase.Shared
 {
-    public class ApplicationDBContextInitializer : DropCreateDatabaseIfModelChanges<ApplicationDbContext>
+    public class ApplicationDBContextInitializer : DropCreateIfIdentityDatabaseEmpty
     {
         protected override void Seed(ApplicationDbContext context)
         {
@@ -26,7 +26,7 @@ namespace SOOS_Auction.AuctionDatabase.Shared
             foreach (var role in roles)
                 roleManager.Create(role);
 
-            ApplicationUser admin = new ApplicationUser() { Email = "admin@gmail.com", UserName = "admin1", TelephoneNumber="+375447146546", Gender="мужской" };
+            ApplicationUser admin = new ApplicationUser() { Email = "admin@gmail.com", UserName = "admin1", TelephoneNumber="+375447146546", Gender="мужской", UserLocation="Минск" , PositiveReview=12, NegativeReview=2};
             string password = "Adminpass_1";
             IdentityResult result = userManager.Create(admin, password);
             if (result.Succeeded)
@@ -36,7 +36,7 @@ namespace SOOS_Auction.AuctionDatabase.Shared
 
             }
 
-            ApplicationUser moderator = new ApplicationUser() { Email = "moder@gmail.com", UserName = "moder1", TelephoneNumber = "+375297146546", Gender = "мужской" };
+            ApplicationUser moderator = new ApplicationUser() { Email = "moder@gmail.com", UserName = "moder1", TelephoneNumber = "+375297146546", Gender = "мужской", UserLocation = "Минск", PositiveReview = 10, NegativeReview = 1 };
             password = "Moderpass_1";
             result = userManager.Create(moderator, password);
             if (result.Succeeded)
@@ -44,7 +44,7 @@ namespace SOOS_Auction.AuctionDatabase.Shared
                 userManager.AddToRole(moderator.Id, roles[1].Name);
             }
 
-            ApplicationUser user = new ApplicationUser() { Email = "user@gmail.com", UserName = "user1", TelephoneNumber = "+375258886546", Gender = "мужской" };
+            ApplicationUser user = new ApplicationUser() { Email = "user@gmail.com", UserName = "user1", TelephoneNumber = "+375258886546", Gender = "мужской", UserLocation = "Минск", PositiveReview = 7, NegativeReview = 0 };
             password = "Userpass_1";
             result = userManager.Create(user, password);
             if (result.Succeeded)

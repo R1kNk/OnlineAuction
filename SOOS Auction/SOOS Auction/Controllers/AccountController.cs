@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
 using System.Security.Claims;
@@ -15,6 +16,29 @@ namespace SOOS_Auction.Controllers
     [Authorize]
     public class AccountController : Controller
     {
+        static List<SelectListItem> Locations = new List<SelectListItem>() {
+                  new SelectListItem { Text = "Минск", Value = "Минск", Selected = true },
+                  new SelectListItem { Text = "Брест", Value = "Брест" },
+                  new SelectListItem { Text = "Гродно", Value = "Гродно" },
+                  new SelectListItem { Text = "Гомель", Value = "Гомель" },
+                  new SelectListItem { Text = "Витебск", Value = "Витебск" },
+                  new SelectListItem { Text = "Могилев", Value = "Могилев" },
+                  new SelectListItem { Text = "Бобруйск", Value = "Бобруйск" },
+                  new SelectListItem { Text = "Барановичи", Value = "Барановичи" },
+                  new SelectListItem { Text = "Новополоцк", Value = "Новополоцк" },
+                  new SelectListItem { Text = "Пинск", Value = "Пинск" },
+                  new SelectListItem { Text = "Борисов", Value = "Борисов" },
+                  new SelectListItem { Text = "Мозырь", Value = "Мозырь" },
+                  new SelectListItem { Text = "Полоцк", Value = "Полоцк" },
+                  new SelectListItem { Text = "Слоним", Value = "Слоним" },
+                  new SelectListItem { Text = "Лида", Value = "Лида" },
+                  new SelectListItem { Text = "Орша", Value = "Орша" },
+                  new SelectListItem { Text = "Молодечно", Value = "Молодечно" },
+                  new SelectListItem { Text = "Жлобин", Value = "Жлобин" },
+                  new SelectListItem { Text = "Кобрин", Value = "Кобрин" },
+                  new SelectListItem { Text = "Слуцк", Value = "Слуцк" }
+                     };
+
         private ApplicationSignInManager _signInManager;
         private ApplicationUserManager _userManager;
 
@@ -120,6 +144,7 @@ namespace SOOS_Auction.Controllers
         [AllowAnonymous]
         public ActionResult Register()
         {
+            ViewBag.Locations = Locations;
             return View();
         }
 
@@ -132,7 +157,7 @@ namespace SOOS_Auction.Controllers
         {
             if (ModelState.IsValid)
             {
-                var user = new ApplicationUser { UserName = model.UserName, Email = model.Email, TelephoneNumber = model.TelephoneNumber, Gender = model.Gender };
+                var user = new ApplicationUser { UserName = model.UserName, Email = model.Email, TelephoneNumber = model.TelephoneNumber, Gender = model.Gender, UserLocation = model.UserLocation, PositiveReview = 0, NegativeReview = 0 };
                 var result = await UserManager.CreateAsync(user, model.Password);
                 if (result.Succeeded)
                 {
@@ -150,6 +175,7 @@ namespace SOOS_Auction.Controllers
             }
 
             // If we got this far, something failed, redisplay form
+            ViewBag.Locations = Locations;
             return View(model);
         }
 

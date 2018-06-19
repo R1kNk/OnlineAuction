@@ -1,0 +1,355 @@
+﻿@model SOOS_Auction.Models.LotCreate
+
+
+<style>
+    section {
+        position: relative;
+        width: 380px;
+        height: 160px;
+        margin: 40px auto;
+        color: #40444f;
+        border: .2rem dashed #616778;
+        border-radius: 1.5rem;
+        cursor: pointer;
+        -webkit-transition: color 0.2s ease-out, border-color 0.2s ease-out;
+        -moz-transition: color 0.2s ease-out, border-color 0.2s ease-out;
+        transition: color 0.2s ease-out, border-color 0.2s ease-out;
+        overflow: hidden;
+        padding-top: 90px;
+        box-sizing: border-box;
+    }
+
+        section:hover, section.dd {
+            border-color: #4d90ff;
+            color: #4d90ff;
+            background-color: #e7f0fe;
+        }
+
+    figure {
+        position: absolute;
+        width: 100%;
+        height: 160px;
+        left: 0;
+        top: 0;
+        display: block;
+    }
+
+        figure:after {
+            position: absolute;
+            display: block;
+            content: '';
+            height: 80px;
+            width: 80px;
+            top: 5px;
+            left: 50%;
+            margin-left: -40px;
+            background-repeat: no-repeat;
+            background-size: 80px 80px;
+            background-image: url(https://professorweb.ru/my/it/blog/net/images/upload_icon.png);
+            -webkit-transition: opacity 0.2s ease-out, border-color 0.2s ease-out;
+            -moz-transition: opacity 0.2s ease-out, border-color 0.2s ease-out;
+            transition: opacity 0.2s ease-out, border-color 0.2s ease-out;
+        }
+
+    section:hover figure:after, section.dd figure:after {
+        opacity: .65;
+    }
+
+    p {
+        text-align: center;
+        font-weight: bold;
+        font-size: 16px;
+        line-height: 24px;
+    }
+
+        p small {
+            font-weight: normal;
+            font-size: 12px;
+            opacity: .7;
+        }
+
+    [type="file"] {
+        position: absolute;
+        top: -16rem;
+        opacity: 0;
+    }
+
+    .error {
+        width: 380px;
+        margin: 0 auto 20px;
+        line-height: 20px;
+        font-size: 14px;
+        color: red;
+        font-style: italic;
+        display: none;
+        text-align: center;
+    }
+
+    /* Прогресс-бар */
+    .progress {
+        height: 20px;
+        width: 380px;
+        margin: 0 auto 20px;
+        overflow: hidden;
+        background-color: #999;
+        border-radius: 4px;
+        -webkit-box-shadow: inset 0 1px 2px rgba(0,0,0,.1);
+        box-shadow: inset 0 1px 2px rgba(0,0,0,.1);
+        position: relative;
+        display: none;
+    }
+
+    .progress-bar {
+        height: 100%;
+        font-size: 12px;
+        float: left;
+        width: 0;
+        background-color: #428bca;
+        -webkit-box-shadow: inset 0 -1px 0 rgba(0,0,0,.15);
+        box-shadow: inset 0 -1px 0 rgba(0,0,0,.15);
+        -webkit-transition: width .6s ease;
+        transition: width .6s ease;
+    }
+
+    .progress-value {
+        position: absolute;
+        left: 0;
+        top: 0;
+        line-height: 20px;
+        height: 100%;
+        width: 100%;
+        color: #fff;
+        text-align: center;
+    }
+
+    /* Контейнер с загруженными картинками */
+    .images {
+        width: 380px;
+        overflow: hidden;
+        margin: 0 auto;
+    }
+
+        .images div {
+            width: 116px;
+            height: 116px;
+            margin: 0 10px 10px 0;
+            float: left;
+            display: block;
+            box-sizing: border-box;
+            padding: 4px;
+            border: 1px solid #d2d2d2;
+            border-radius: 6px;
+            position: relative;
+        }
+
+
+        .images a:hover {
+            border-color: #428bcb;
+        }
+
+        .images span {
+            width: 100%;
+            height: 100%;
+            position: relative;
+            top: 0;
+            left: 0;
+            display: block;
+            background-repeat: no-repeat;
+            background-size: contain;
+            background-position: center;
+        }
+</style>
+
+@using (Html.BeginForm())
+{
+    @Html.AntiForgeryToken()
+
+    <div class="form-horizontal">
+        <h1 class="modal-title">Новый лот</h1>
+        <hr />
+        @Html.ValidationSummary(true, "", new { @class = "text-danger" })
+        <div class="form-group">
+            @Html.LabelFor(model => model.Name, htmlAttributes: new { @class = "control-label col-md-2" })
+            <div class="col-md-10">
+                @Html.EditorFor(model => model.Name, new { htmlAttributes = new { @class = "form-control" } })
+                @Html.ValidationMessageFor(model => model.Name, "", new { @class = "text-danger" })
+            </div>
+        </div>
+
+        <div class="form-group">
+            @Html.LabelFor(model => model.SectionId, htmlAttributes: new { @class = "control-label col-md-2" })
+            <div class="col-md-10">
+                @Html.DropDownListFor(model => model.SectionId, ViewBag.Sections as SelectList, new { id = "section", @class = "form-control col-md-2" })
+                @Html.ValidationMessageFor(model => model.SectionId, "", new { @class = "text-danger" })
+            </div>
+        </div>
+
+        <div class="form-group">
+            @Html.LabelFor(model => model.CategoryId, htmlAttributes: new { @class = "control-label col-md-2" })
+            <div class="col-md-10">
+                @Html.DropDownListFor(model => model.CategoryId, ViewBag.Categories as SelectList, new { id = "category", @class = "form-control" })
+                @Html.ValidationMessageFor(model => model.CategoryId, "", new { @class = "text-danger" })
+            </div>
+        </div>
+
+        <div class="form-group">
+            @Html.LabelFor(model => model.MinimalPrice, htmlAttributes: new { @class = "control-label col-md-2" })
+            <div class="col-md-10">
+                @Html.EditorFor(model => model.MinimalPrice, new { htmlAttributes = new { @class = "form-control" } })
+                @Html.ValidationMessageFor(model => model.MinimalPrice, "", new { @class = "text-danger" })
+            </div>
+        </div>
+
+        <div class="form-group">
+            @Html.LabelFor(model => model.MinimalStep, htmlAttributes: new { @class = "control-label col-md-2" })
+            <div class="col-md-10">
+                @Html.EditorFor(model => model.MinimalStep, new { htmlAttributes = new { @class = "form-control" } })
+                @Html.ValidationMessageFor(model => model.MinimalStep, "", new { @class = "text-danger" })
+            </div>
+        </div>
+
+        <div class="form-group">
+            @Html.LabelFor(model => model.Description, htmlAttributes: new { @class = "control-label col-md-2" })
+            <div class="col-md-10">
+                @Html.TextAreaFor(model => model.Description, new { htmlAttributes = new { @class = "form-control col-md-2" } })
+                @Html.ValidationMessageFor(model => model.Description, "", new { @class = "text-danger" })
+            </div>
+        </div>
+
+        <div class="form-group">
+            @Html.LabelFor(model => model.DaysDuration, htmlAttributes: new { @class = "control-label col-md-2" })
+            <div class="col-md-10">
+                @Html.EditorFor(model => model.DaysDuration, new { htmlAttributes = new { @class = "form-control" } })
+                @Html.ValidationMessageFor(model => model.DaysDuration, "", new { @class = "text-danger" })
+            </div>
+        </div>
+
+        <div class="form-group">
+            @Html.LabelFor(model => model.Location, htmlAttributes: new { @class = "control-label col-md-2" })
+            <div class="col-md-10">
+                @Html.DropDownListFor(model => model.Location, ViewBag.Locations as List<SelectListItem>, new { @class = "form-control" })
+                @Html.ValidationMessageFor(model => model.Location, "", new { @class = "text-danger" })
+            </div>
+        </div>
+
+        <div class="form-group">
+            @Html.LabelFor(model => model.ByPost, htmlAttributes: new { @class = "control-label col-md-2" })
+            <div class="col-md-10">
+                <div class="checkbox">
+                    @Html.EditorFor(model => model.ByPost)
+                    @Html.ValidationMessageFor(model => model.ByPost, "", new { @class = "text-danger" })
+                </div>
+            </div>
+        </div>
+
+        <div class="form-group">
+            @Html.LabelFor(model => model.DeliveryInPerson, htmlAttributes: new { @class = "control-label col-md-2" })
+            <div class="col-md-10">
+                <div class="checkbox">
+                    @Html.EditorFor(model => model.DeliveryInPerson)
+                    @Html.ValidationMessageFor(model => model.DeliveryInPerson, "", new { @class = "text-danger" })
+                </div>
+            </div>
+        </div>
+
+        <div class="form-group">
+            @Html.LabelFor(model => model.ByPostToAnotherCountry, htmlAttributes: new { @class = "control-label col-md-2" })
+            <div class="col-md-10">
+                <div class="checkbox">
+                    @Html.EditorFor(model => model.ByPostToAnotherCountry)
+                    @Html.ValidationMessageFor(model => model.ByPostToAnotherCountry, "", new { @class = "text-danger" })
+                </div>
+            </div>
+        </div>
+
+        <div class="form-group">
+            @Html.LabelFor(model => model.ReturnAfterBuyingIsForbidden, htmlAttributes: new { @class = "control-label col-md-2" })
+            <div class="col-md-10">
+                <div class="checkbox">
+                    @Html.EditorFor(model => model.ReturnAfterBuyingIsForbidden)
+                    @Html.ValidationMessageFor(model => model.ReturnAfterBuyingIsForbidden, "", new { @class = "text-danger" })
+                </div>
+            </div>
+        </div>
+
+        <div class="form-group">
+            @Html.LabelFor(model => model.Cash, htmlAttributes: new { @class = "control-label col-md-2" })
+            <div class="col-md-10">
+                <div class="checkbox">
+                    @Html.EditorFor(model => model.Cash)
+                    @Html.ValidationMessageFor(model => model.Cash, "", new { @class = "text-danger" })
+                </div>
+            </div>
+        </div>
+
+        <div class="form-group">
+            @Html.LabelFor(model => model.NonCash, htmlAttributes: new { @class = "control-label col-md-2" })
+            <div class="col-md-10">
+                <div class="checkbox">
+                    @Html.EditorFor(model => model.NonCash)
+                    @Html.ValidationMessageFor(model => model.NonCash, "", new { @class = "text-danger" })
+                </div>
+            </div>
+        </div>
+
+        <div class="form-group">
+            @Html.LabelFor(model => model.FullPrepaymentPostSending, htmlAttributes: new { @class = "control-label col-md-2" })
+            <div class="col-md-10">
+                <div class="checkbox">
+                    @Html.EditorFor(model => model.FullPrepaymentPostSending)
+                    @Html.ValidationMessageFor(model => model.FullPrepaymentPostSending, "", new { @class = "text-danger" })
+                </div>
+            </div>
+        </div>
+
+        <div class="form-group">
+            @Html.LabelFor(model => model.AdditionalInformation, htmlAttributes: new { @class = "control-label col-md-2" })
+            <div class="col-md-10">
+                @Html.TextAreaFor(model => model.AdditionalInformation, new { htmlAttributes = new { @class = "form-control col-md-2" } })
+                @Html.ValidationMessageFor(model => model.AdditionalInformation, "", new { @class = "text-danger" })
+            </div>
+        </div>
+
+        <section id="inputSection">
+            <figure></figure>
+            <p>Загрузка файлов</p>
+            <p><small>Перетащите ваши файлы в эту область!</small></p>
+            <input type="file" id="input" accept="image/x-png,image/jpeg">
+        </section>
+        <div class="progress">
+            <div class="progress-bar"></div>
+            <div class="progress-value">0 %</div>
+        </div>
+        <div class="error">
+        </div>
+        <div class="images">
+        </div>
+
+        <div class="form-group">
+            <div class="col-md-10">
+                <input type="submit" value="Create" class="btn btn-default" />
+            </div>
+        </div>
+    </div>
+}
+
+@section scripts{
+    <script type="text/javascript">
+        $(function () {
+
+            $('#section').change(function () {
+                // получаем выбранный id
+                var id = $(this).val();
+                $.ajax({
+                    type: 'GET',
+                    url: '/Lot/GetCategories?id=' + id,
+                    success: function (data) {
+
+                        // заменяем содержимое присланным частичным представлением
+                        $('#category').replaceWith(data);
+                    }
+                });
+            });
+        })
+    </script>
+}

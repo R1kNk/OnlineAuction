@@ -6,6 +6,7 @@ using System.Web;
 using System.Web.Mvc;
 using Microsoft.AspNet.Identity;
 using SOOS_Auction.AuctionGoogleDrive;
+using SOOS_Auction.Models;
 using SOOS_Auction.Models.ImagesRequests;
 
 namespace SOOS_Auction.Controllers
@@ -23,6 +24,8 @@ namespace SOOS_Auction.Controllers
 
         public ActionResult About()
         {
+            AuctionContext auctionContext = new AuctionContext();
+            auctionContext.Bids.ToList();
             ViewBag.Message = "Your application description page.";
 
             return View();
@@ -75,8 +78,8 @@ namespace SOOS_Auction.Controllers
                     {
                         Guid guid = Guid.NewGuid();
                         file.SaveAs($@"{__filepath}\{guid}.{file.FileName}");
-                        string fileId = ApiMethods.Upload("lul", $@"{__filepath}\{guid}.{file.FileName}", file.ContentType);
-                        ApiMethods.MakeFilePublic(fileId);
+                        string fileId = FileApiMethods.Upload("lul", $@"{__filepath}\{guid}.{file.FileName}", file.ContentType);
+                        FileApiMethods.MakeFilePublic(fileId);
                         result.Files.Add("https://drive.google.com/uc?id=" + fileId);
                         System.IO.File.Delete($@"{__filepath}\{guid}.{file.FileName}");
                     }
