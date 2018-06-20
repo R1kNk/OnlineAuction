@@ -376,7 +376,7 @@
                 </div>
                 <!--/Slider-->
                 <div id="BidPanel" class="col-sm-3">
-                    <p style="font-size:20px; color:#838383;"><strong style="font-size:30px; color:black;">@Model.CurrentPrice.ToString("F")</strong> бел. руб.</p>
+                    <p style="font-size:20px; color:#838383;"><strong id="CurrentPrice" style="font-size:30px; color:black;">@Model.CurrentPrice.ToString("F")</strong> бел. руб.</p>
                     <input style="float:right; margin-left:20px;" type="button" id="btnShowBids" class="btn btn-primary" value="Ставки" />
                     <div id="BidsModal" class="modal fade" role="dialog">
                         <div class="modal-dialog">
@@ -387,31 +387,29 @@
 
                         </div>
                     </div>
-                    @using (Ajax.BeginForm("MakeBid", new AjaxOptions { }))
-                    {
+
                         <div class="input-group">
                             @{
                                 string placeholder = default(string);
                                 if (Model.CurrentPrice == 0) { placeholder = Model.MinimalPrice.ToString("F"); }
                                 else { placeholder = (Model.CurrentPrice + Model.MinimalStep).ToString("F"); }
-                                <input type="text" name="newBid" style="font-size:25px;" class="form-control" placeholder="@placeholder" aria-label="" aria-describedby="basic-addon2">
-                                <input type="text" name="lotId" value="@Model.LotId" hidden/>
+                                <input type="text" name="newBid" id="newBid" style="font-size:25px;" class="form-control" placeholder="@placeholder" aria-label="" aria-describedby="basic-addon2">
+                                <input type="text" name="lotId" id="lotId" value="@Model.LotId" hidden/>
                             }
                             <div class="input-group-btn bidBtn">
 
                                 @if (HttpContext.Current.User.Identity.Name == Model.UserName)
                                 {
-                                    <button disabled class="btn btn-outline-secondary" type="submit"><strong style="color:white" class="bidText">Сделать ставку</strong></button>
+                                    <button disabled class="btn btn-outline-secondary" onclick="sendBid()" ><strong style="color:white" class="bidText">Сделать ставку</strong></button>
 
                                 }
                                 else
                                 {
-                                    <button class="btn btn-outline-secondary" type="submit"><strong style="color:white" class="bidText">Сделать ставку</strong></button>
+                                    <button class="btn btn-outline-secondary" onclick="sendBid()"><strong style="color:white" class="bidText">Сделать ставку</strong></button>
                                 }
                             </div>
                         </div>
-                    }
-
+                        <div id="ErrorContainer" style="float:left; margin-left:0;"></div>
                 </div>
                 <div id="userInfo" class="col-sm-2" style="border-left:1px solid #EEEEEE">
                     <div class="imgWrap">
@@ -527,7 +525,6 @@
             $('#carousel-text').html($('#slide-content-' + id).html());
         });
 
-        $(function () {
             $("#btnShowBids").click(function () {
                 var id = $('#LotId').text();
                 console.log(id);
@@ -542,19 +539,65 @@
                 });
                 $('#BidsModal').modal('show');
             });
-            $("#btnRefreshBids").click(function () {
-                var id = $('#LotId').text();
-                console.log(id);
-                $.ajax({
-                    type: 'GET',
-                    url: '/Lot/GetBids?id=' + id,
-                    success: function (data) {
+        
 
-                        // заменяем содержимое присланным частичным представлением
-                        $('#modalContent').html(data);
-                    }
-                });
-            });
-        })
+            
     })
+    function delBid(clicked_id) {
+        console.log(clicked_id);
+        var parent = $("#" + clicked_id).parent()
+        var parentDiv = parent.parent();
+        $.ajax({
+            url: '/Lot/BidDelete',
+            method: 'POST',
+            data: { id: clicked_id },
+            success: function (data) {
+                if (data == "ok") {
+                    parentDiv.empty();
+                    parentDiv.remove();
+                    updateLots('btnRefreshBids');
+                }
+            }
+        });
+    }
+    function updateLots() {
+        $('#bidBody').empty();
+        var id = $('#LotId').text();
+        console.log(id);
+        $.ajax({
+            type: 'GET',
+            url: '/Lot/GetBids?id=' + id,
+            success: function (data) {
+
+                // заменяем содержимое присланным частичным представлением
+                $('#modalContent').html(data);
+            }
+        });
+    }
+    function sendBid() {
+        var newBid = $('#newBid').val();
+        var lotId = $('#lotId').val();
+        $.ajax({
+            type: 'POST',
+            data: {newBid:newBid, lotId:lotId},
+            url: '@Url.Action("MakeBid", "Lot" ,new { newBid = "newBid", lotId = "lotId"})',
+            success: function (data) {
+                $("#ErrorContainer").empty();
+                if (data.isSuccess) {
+                    var price = data.newLotPrice;
+                    console.log(price);
+                    $("#CurrentPrice").text(price);
+                    var placeholder = data.newPlaceHolder;
+                    $("#newBid").attr("placeholder", placeholder);
+                    $("#newBid").val("");
+                }
+                else {
+                    var error = '<br/><span style="float:left;font-size:15px; color:red;">' + data.bidErrors[0] + '</span>';
+                    $('#ErrorContainer').append(error);
+                }
+                // заменяем содержимое присланным частичным представлением
+            }
+        });
+    }
+    
 </script>

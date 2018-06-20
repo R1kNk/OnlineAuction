@@ -72,6 +72,8 @@ namespace SOOS_Auction.Controllers
         // GET: Lot/Create
         public ActionResult Create()
         {
+            UpdateLotPrice(2);
+
             DeleteUserImages();
             AuctionContext auctionContext = new AuctionContext();
             List<Lot> lots = auctionContext.Lots.Include(path=>path.LotPayment).Include(p=>p.LotReceiving).ToList();
@@ -133,26 +135,55 @@ namespace SOOS_Auction.Controllers
             return RedirectToAction("About", "Home");
         }
         [HttpPost]
-        public void MakeBid(string newBid, int lotId)
+        public JsonResult MakeBid(string newBid, int lotId)
         {
             AuctionContext context = new AuctionContext();
-            float bid;
-            int lot;
+            NewBidResult newBidResult = new NewBidResult();
+            double newBidPrice;
             try
             {
-                bid = (float)Convert.ToDouble(newBid);
-                lot = Convert.ToInt32(lotId);
+                newBidPrice = (float)Convert.ToDouble(newBid);
             }
-            catch(FormatException e) { return; }
+            catch(FormatException e) { newBidResult.bidErrors.Add("Введите корректную цену ставки!"); return Json(newBidResult); }
+            List<Bid> bids = context.Bids.Where(p => p.LotId == lotId).OrderByDescending(p => p.Price).ToList();
+            if (bids.Count != 0)
+            {
+                string bidUserID = bids.First().User;
+                if (HttpContext.User.Identity.GetUserId() == bidUserID)
+                {
+                    newBidResult.bidErrors.Add("Вы не можете сделать ставку, т. к. предыдущая ставка этого лота принадлежит вам!"); return Json(newBidResult);
+                }
+            }
             Lot findedLot;
             findedLot = context.Lots.Where(p => p.LotId == lotId).SingleOrDefault();
-            if (findedLot == null) return;
-            if (findedLot.CurrentPrice + findedLot.MinimalStep > bid) return;
-            Bid newbid = new Bid() { LotId = findedLot.LotId, Price = bid, BidDate = DateTime.Now, User = HttpContext.User.Identity.GetUserId() };
+            if (findedLot == null) {
+                newBidResult.bidErrors.Add("Лот не существует либо удален. Обновите страницу."); return Json(newBidResult);
+            };
+            if (findedLot.CurrentPrice + findedLot.MinimalStep > newBidPrice)
+            {
+                newBidResult.bidErrors.Add("Ставка должна быть больше либо равна суммы текущей цены и минимального шага!"); return Json(newBidResult);
+            }
+            if(findedLot.CurrentPrice==0 && newBidPrice < findedLot.MinimalPrice)
+            {
+                newBidResult.bidErrors.Add("Ставка должна быть больше или равна минимальной цене лота!"); return Json(newBidResult);
+            }
+            Bid newbid = new Bid() { LotId = findedLot.LotId, Price = newBidPrice, BidDate = DateTime.Now, User = HttpContext.User.Identity.GetUserId() };
             context.Bids.Add(newbid);
             context.SaveChanges();
             UpdateLotPrice(lotId);
+            context = new AuctionContext();
+            findedLot = context.Lots.Where(p => p.LotId == lotId).SingleOrDefault();
+            if (findedLot == null)
+            {
+                newBidResult.bidErrors.Add("Лот не существует либо удален. Обновите страницу."); return Json(newBidResult);
+            }
+            newBidResult.isSuccess = true;
+            newBidResult.newLotPrice = findedLot.CurrentPrice.ToString("F");
+            newBidResult.newPlaceHolder = (findedLot.CurrentPrice + findedLot.MinimalStep).ToString("F");            
+            return Json(newBidResult);
         }
+
+
 
         public void UpdateLotPrice(int id)
         {
@@ -275,6 +306,34 @@ namespace SOOS_Auction.Controllers
                 return Json(res);
             }
             
+            return Json(res);
+        }
+
+        [HttpPost]
+        public JsonResult BidDelete(string id)
+        {
+            string res = "no";
+            int BidId = default(int);
+            try
+            {
+                BidId = Convert.ToInt32(id);
+            }
+            catch(Exception e) { return Json(res); }
+            AuctionContext auctionContext = new AuctionContext();
+            Bid bid = auctionContext.Bids.Include(p => p.Lot).Where(p => p.BidId == BidId).SingleOrDefault();
+            if (bid == null) { return Json(res); }
+            string lotOwnerId = bid.Lot.UserId;
+            ApplicationUser lotOwner = UserManager.Users.Where(p => p.Id == lotOwnerId).SingleOrDefault();
+            if (lotOwner == null) return Json(res);
+            if (lotOwner.UserName == HttpContext.User.Identity.Name)
+            {
+                auctionContext.Bids.Remove(bid);
+                auctionContext.SaveChanges();
+                UpdateLotPrice(bid.LotId);
+                res = "ok";
+                return Json(res);
+            }
+
             return Json(res);
         }
 

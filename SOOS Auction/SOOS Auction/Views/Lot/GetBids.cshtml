@@ -4,36 +4,41 @@
         <h2>Ставки</h2> <br />
          <ul style=" list-style-type: none; margin: 0;padding: 0;">
             <li style="float:right;">
-                <input style="float:right; color:white;" type="button" id="btnRefreshBids" class="btn" value="Обновить" />
+                <input style="float:right; color:white;" type="button" id="btnRefreshBids" onclick="updateLots()" class="btn" value="Обновить" />
             </li>
             <li style="float:left;">
                 <strong>Сделано @Model.Count ставок(и)</strong><br />
             </li>
          </ul>
     </div>
-    <div class="modal-body">
+    <div id="bidBody" class="modal-body">
         @{
-                foreach (var item in Model)
-                {
+            foreach (var item in Model)
+            {
 
-                    <div class="row">
-                    <div class="col-md-3">
-                        <a href="#" style="color:#080E9B; font-size:20px;">@item.UserName</a>
-                    </div>
-                    <div class="col-md-3">
-                        <span style="font-size:15px">@item.bid.Price.ToString("F") бел. руб.</span>
-                    </div>
-                    <div class="col-md-5">
-                        <span style="font-size:15px; text-align:center;">@item.bid.BidDate.ToString("F")</span>   
-                    </div>
-                       @if (item.LotOwnerUserName == item.CurrentUserName)
-                        {
-                        <div class="col-md-1">
-                            <button id="bid-@item.bid.BidId" type="button" class="close">&times     </button>
-                    </div>
-                        }
-
+        <div class="row">
+            <div class="col-md-3">
+                <a href="#" style="color:#080E9B; font-size:20px;">@item.UserName</a>
+            </div>
+            <div class="col-md-3">
+                <span style="font-size:15px">@item.bid.Price.ToString("F") бел. руб.</span>
+            </div>
+            @if (item.LotOwnerUserName == item.CurrentUserName)
+            {
+                <div class="col-md-5">
+                    <span style="font-size:15px; text-align:center;">@item.bid.BidDate.ToString("F")</span>
                 </div>
+                <div class="col-md-1">
+                    <button class="bidButton close" id="@item.bid.BidId" onclick="delBid(this.id)" type="button">&times</button>
+                </div>
+            }
+            else
+            {
+                <div class="col-md-5 col-md-offset-1">
+                    <span style="font-size:15px; text-align:center;">@item.bid.BidDate.ToString("F")</span>
+                </div>
+            }
+        </div>
                 }
             }
 
