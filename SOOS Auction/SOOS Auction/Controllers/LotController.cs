@@ -68,8 +68,8 @@ namespace SOOS_Auction.Controllers
             return View(lotDetails);
         }
 
-        
-        // GET: Lot/Create
+
+        [Authorize]
         public ActionResult Create()
         {
             UpdateLotPrice(2);
@@ -86,7 +86,7 @@ namespace SOOS_Auction.Controllers
             return View();
         }
 
-        // POST: Lot/Create
+        [Authorize]
         [HttpPost]
         public ActionResult Create(LotCreate model)
         {
@@ -134,6 +134,8 @@ namespace SOOS_Auction.Controllers
             //image uploading
             return RedirectToAction("About", "Home");
         }
+
+        [Authorize]
         [HttpPost]
         public JsonResult MakeBid(string newBid, int lotId)
         {
@@ -178,11 +180,34 @@ namespace SOOS_Auction.Controllers
                 newBidResult.bidErrors.Add("Лот не существует либо удален. Обновите страницу."); return Json(newBidResult);
             }
             newBidResult.isSuccess = true;
-            newBidResult.newLotPrice = findedLot.CurrentPrice.ToString("F");
-            newBidResult.newPlaceHolder = (findedLot.CurrentPrice + findedLot.MinimalStep).ToString("F");            
             return Json(newBidResult);
         }
 
+        [Authorize]
+        [HttpPost]
+        public JsonResult UpdateLotData(int lotId)
+        {
+            AuctionContext context = new AuctionContext();
+            LotData lotData = new LotData();
+            Lot findedLot;
+            findedLot = context.Lots.Where(p => p.LotId == lotId).SingleOrDefault();
+            if (findedLot == null)
+            {
+                lotData.isSuccess = false; return Json(lotData);
+            };
+            if (findedLot.CurrentPrice != 0)
+            {
+                lotData.newLotPrice = findedLot.CurrentPrice.ToString("F");
+                lotData.newPlaceHolder = (findedLot.CurrentPrice + findedLot.MinimalStep).ToString("F");
+            }
+            else
+            {
+                lotData.newLotPrice = findedLot.CurrentPrice.ToString("F");
+                lotData.newPlaceHolder = findedLot.MinimalPrice.ToString("F");
+            }
+            lotData.isSuccess = true;
+            return Json(lotData);
+        }
 
 
         public void UpdateLotPrice(int id)

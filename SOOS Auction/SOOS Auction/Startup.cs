@@ -8,6 +8,7 @@ namespace SOOS_Auction
     {
         public void Configuration(IAppBuilder app)
         {
+            app.MapSignalR();
             ConfigureAuth(app);
         }
     }

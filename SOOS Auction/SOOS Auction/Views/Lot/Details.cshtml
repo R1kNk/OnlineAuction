@@ -1,494 +1,371 @@
 ﻿@model SOOS_Auction.Models.LotDetails
-<style>
-    .lotBar-contaner ul li a {
-        font-size: 14px;
-    }
 
-    .lotBar-sections {
-        color: black;
-        text-decoration: dashed;
-    }
-
-    .dropdown-content {
-        display: none;
-        position: absolute;
-        min-width: 160px;
-        z-index: 1;
-    }
-
-        .dropdown-content li a {
-            color: black;
-            text-decoration: none;
-            display: block;
-        }
-
-            .dropdown-content li a:hover {
-                background-color: #ddd;
-            }
-
-    .dropdown:hover .dropdown-content {
-        display: block;
-    }
-
-    .lotContentInfo {
-        margin-left: 10px;
-    }
-
-        .lotContentInfo hr {
-            margin-left: -10px;
-        }
-
-    .lotAdditionalInfo p {
-        font-family: "Times New Roman", Times, serif;
-        color: #7B7B7B;
-        font-size: 20px;
-        display: inline;
-        margin-right: 10px;
-    }
-
-    .hide-bullets {
-        list-style: none;
-        margin-left: -40px;
-        margin-top: 20px;
-    }
-
-    .thumbnail {
-        padding: 0;
-    }
-
-    .carousel-inner > .item > img, .carousel-inner > .item > a > img {
-        width: 100%;
-    }
-
-    #slider-thumbs {
-        overflow-y: scroll;
-        white-space: nowrap;
-    }
-
-    hr {
-        margin-left: -10px;
-    }
-
-
-    .bidBtn {
-        background-color: #3A7999;
-    }
-  
-    .btn {
-        background-color: #3A7999;
-    }
-
-
-    .imgWrap {
-        margin: 0px 8px 0px 0px;
-        float: left;
-    }
-
-    .txtWrap {
-
-        display: table-cell;
-    }
-    .lotDescription div{
-        margin-top:30px;
-    }
-    .deliveryDescription {
-       font-size:20px;
-       margin-top:15px;
-    }
-
-
-    .container {
-        position: relative;
-        width: 100%;
-        float: left;
-    }
-
-    .overlay {
-        position: absolute;
-        left: 100%;
-        background-color: #FFFFFF;
-        overflow: hidden;
-        width: 0;
-    }
-    .container:hover .overlay {
-        background-color: #FFFFFF;
-        overflow: visible;
-        width: 100%;
-        bottom: 100%;
-    }
-
-
-    .sidebar-nav {
-        padding: 9px 0;
-    }
-
-    .dropdown-menu .sub-menu {
-        left: 100%;
-        position: absolute;
-        top: 0;
-        visibility: hidden;
-        margin-top: -1px;
-    }
-
-    .dropdown-menu li:hover .sub-menu {
-        visibility: visible;
-    }
-
-    .dropdown:hover .dropdown-menu {
-        display: block;
-    }
-
-
-    
-
-</style>
 <span id="LotId" style="visibility:hidden;">@Model.LotId</span>
-    <div class="navbar navbar-default">
-        <div class="container-fluid lotBar-contaner">
-            <div class="navbar-collapse">
-                <ul class="nav navbar-nav navbar-left lotBar">
-                    <li class="dropdown dropdown-menu-left">
-                        <a href="#" style="color:black;" class="dropdown-toggle lotBar-sections" data-toggle="dropdown">Все разделы<b class="caret"></b></a>
-                        <ul class="dropdown-menu dropdown-content">
-                            <li>
-                                <a href="#">Телефоны. Смартфоны</a>
-                                <ul class="dropdown-menu sub-menu">
-                                    <li><a href="#">Мобильные телефоны</a></li>
-                                    <li><a href="#">Мобильные телефоны: Аксессуары и запчасти</a></li>
-                                    <li><a href="#">Радиотелефоны, DECT  и Проводные телефоны</a></li>
-                                    <li><a href="#">Другое</a></li>
+<div class="navbar navbar-default">
+    <div class="container-fluid lotBar-contaner">
+        <div class="navbar-collapse">
+            <ul class="nav navbar-nav navbar-left lotBar">
+                <li class="dropdown dropdown-menu-left">
+                    <a href="#" style="color:black;" class="dropdown-toggle lotBar-sections" data-toggle="dropdown">Все разделы<b class="caret"></b></a>
+                    <ul class="dropdown-menu dropdown-content">
+                        <li>
+                            <a href="#">Телефоны. Смартфоны</a>
+                            <ul class="dropdown-menu sub-menu">
+                                <li><a href="#">Мобильные телефоны</a></li>
+                                <li><a href="#">Мобильные телефоны: Аксессуары и запчасти</a></li>
+                                <li><a href="#">Радиотелефоны, DECT  и Проводные телефоны</a></li>
+                                <li><a href="#">Другое</a></li>
 
-                                </ul>
-                            </li>
-                            <li>
-                                <a href="#">Ноутбуки. Компьютеры. Apple. Оргтехника</a>
-                                <ul class="dropdown-menu sub-menu">
-                                    <li><a href="#">Ноутбуки</a></li>
-                                    <li><a href="#">Планшеты и электронные книги</a></li>
-                                    <li><a href="#">Apple. Mac, iPod, iPhone, iPad</a></li>
-                                    <li><a href="#">Apple: запчасти и аксессуары</a></li>
-                                    <li><a href="#">Материнские платы. Процессоры. Оперативная память</a></li>
-                                    <li><a href="#">Видеокарты</a></li>
-                                    <li><a href="#">Корпуса. Блоки питания. ИБП. Системы охлаждения. Моддинг</a></li>
-                                    <li><a href="#">Мониторы. Проекторы</a></li>
-                                    <li><a href="#">Акустика. Клавиатуры. Мыши. Аксессуары.</a></li>
-                                    <li><a href="#">Сетевое оборудование. Модемы. WI-FI</a></li>
-                                    <li><a href="#">Принтеры. МФУ. Офисная техника</a></li>
-                                    <li><a href="#">Радиотехника и электроника</a></li>
-                                    <li><a href="#">Другое</a></li>
-                                </ul>
-                            </li>
-                            <li>
-                                <a href="#">Фото. Аудио. Видео. Приставки</a>
-                                <ul class="dropdown-menu sub-menu">
-                                    <li><a href="#">Фотоаппараты</a></li>
-                                    <li><a href="#">Фотоаксессуары. Объективы</a></li>
-                                    <li><a href="#">Видеокамеры. Аксессуары</a></li>
-                                    <li><a href="#">MP-3 плееры и Портативная аудио/видео-техника. Наушники.</a></li>
-                                    <li><a href="#">Спутниковое телевидение</a></li>
-                                    <li><a href="#">Телевизоры</a></li>
-                                    <li><a href="#">Игровые приставки</a></li>
-                                    <li><a href="#">Другое</a></li>
-                                </ul>
-                            </li>
-                            <li>
-                                <a href="#">Авто. Мото</a>
-                                <ul class="dropdown-menu sub-menu">
-                                    <li><a href="#">Грузовые автомобили и прицепы</a></li>
-                                    <li><a href="#">Спец. техника. Трактора</a></li>
-                                    <li><a href="#">Автобусы</a></li>
-                                    <li><a href="#">Водный транспорт</a></li>
-                                    <li><a href="#">Мотозапчасти. мотоаксессуары</a></li>
-                                    <li><a href="#">Другое</a></li>
-                                </ul>
-                            </li>
-                            <li>
-                                <a href="#">Автозапчасти и автоаксессуары</a>
-                                <ul class="dropdown-menu sub-menu">
-                                    <li><a href="#">Расходники</a></li>
-                                    <li><a href="#">Двигатели. Система пуска и зарядки. Система зажигания</a></li>
-                                    <li><a href="#">Система охлаждения, отопления, вентиляции</a></li>
-                                    <li><a href="#">Топливная система. Система спуска</a></li>
-                                    <li><a href="#">Сцепление. Коробка передач. Привод</a></li>
-                                    <li><a href="#">Подвеска. Рулевое управление</a></li>
-                                    <li><a href="#">Тормозная система.</a></li>
-                                    <li><a href="#">Автомобильная оптика. Тюнинг. Автосигнализация</a></li>
-                                    <li><a href="#">Шины и диски</a></li>
-                                    <li><a href="#">Аккумуляторы</a></li>
-                                    <li><a href="#">GPS навигаторы</a></li>
-                                    <li><a href="#">Видеорегистраторы</a></li>
-                                    <li><a href="#">Другое</a></li>
-                                </ul>
-                            </li>
-                            <li>
-                                <a href="#">Дом. Дача</a>
-                                <ul class="dropdown-menu sub-menu">
-                                    <li><a href="#">Шкафы. Комоды. Горки. Секции. Полки</a></li>
-                                    <li><a href="#">Диваны. Кресла. Мягкая мебель.</a></li>
-                                    <li><a href="#">Столы. Стулья. Тумбы</a></li>
-                                    <li><a href="#">Кровати. Матрасы. Мебель для спальни</a></li>
-                                    <li><a href="#">Кухни и кухонная мебель</a></li>
-                                    <li><a href="#">Мебель для детской комнаты</a></li>
-                                    <li><a href="#">Мебель для ванной</a></li>
-                                    <li><a href="#">Офисная мебель</a></li>
-                                    <li><a href="#">Элементы интерьера. Дизайн</a></li>
-                                    <li><a href="#">Посуда и кухонные принадлежности</a></li>
-                                    <li><a href="#">Бытовая техника</a></li>
-                                    <li><a href="#">Растения. Дача. Сад и огород. Ландшафтный дизайн</a></li>
-                                    <li><a href="#">Газонокосилки. Триммеры. Кусторезы</a></li>
-                                    <li><a href="#">Другое</a></li>
-                                </ul>
-                            </li>
-                            <li>
-                                <a href="#">Коллекционирование</a>
-                                <ul class="dropdown-menu sub-menu">
-                                    <li><a href="#">Медали. Жетоны. Значки</a></li>
-                                    <li><a href="#">Банкноты. Ценные бумаги</a></li>
-                                    <li><a href="#">Военные вещи</a></li>
-                                    <li><a href="#">Марки</a></li>
-                                    <li><a href="#">Модели. Фигурки</a></li>
-                                    <li><a href="#">Аксессуары</a></li>
-                                    <li><a href="#">Другое</a></li>
-                                </ul>
-                            </li>
-                            <li>
-                                <a href="#">Одежда. Обувь. Аксессуары.</a>
-                                <ul class="dropdown-menu sub-menu">
-                                    <li><a href="#">Женская одежда</a></li>
-                                    <li><a href="#">Женская обувь</a></li>
-                                    <li><a href="#">Мужская одежда</a></li>
-                                    <li><a href="#">Детская одежда</a></li>
-                                    <li><a href="#">Детская обувь</a></li>
-                                    <li><a href="#">Головные уборы</a></li>
-                                    <li><a href="#">Бижутерия</a></li>
-                                    <li><a href="#">Наручные часы</a></li>
-                                    <li><a href="#">Аксессуары</a></li>
-                                    <li><a href="#">Старинная одежда. Винтаж</a></li>
-                                    <li><a href="#">Другое</a></li>
-                                </ul>
-                            </li>
-                        </ul>
-                    <li><a  style="color:black;" href="/Lots">@Model.SectionName</a></li>
-                    <li><a>=></a></li>
-                    <li ><a style="color:black;" href="/Home/About">@Model.CategoryName</a></li>
-                </ul>
-            </div>
+                            </ul>
+                        </li>
+                        <li>
+                            <a href="#">Ноутбуки. Компьютеры. Apple. Оргтехника</a>
+                            <ul class="dropdown-menu sub-menu">
+                                <li><a href="#">Ноутбуки</a></li>
+                                <li><a href="#">Планшеты и электронные книги</a></li>
+                                <li><a href="#">Apple. Mac, iPod, iPhone, iPad</a></li>
+                                <li><a href="#">Apple: запчасти и аксессуары</a></li>
+                                <li><a href="#">Материнские платы. Процессоры. Оперативная память</a></li>
+                                <li><a href="#">Видеокарты</a></li>
+                                <li><a href="#">Корпуса. Блоки питания. ИБП. Системы охлаждения. Моддинг</a></li>
+                                <li><a href="#">Мониторы. Проекторы</a></li>
+                                <li><a href="#">Акустика. Клавиатуры. Мыши. Аксессуары.</a></li>
+                                <li><a href="#">Сетевое оборудование. Модемы. WI-FI</a></li>
+                                <li><a href="#">Принтеры. МФУ. Офисная техника</a></li>
+                                <li><a href="#">Радиотехника и электроника</a></li>
+                                <li><a href="#">Другое</a></li>
+                            </ul>
+                        </li>
+                        <li>
+                            <a href="#">Фото. Аудио. Видео. Приставки</a>
+                            <ul class="dropdown-menu sub-menu">
+                                <li><a href="#">Фотоаппараты</a></li>
+                                <li><a href="#">Фотоаксессуары. Объективы</a></li>
+                                <li><a href="#">Видеокамеры. Аксессуары</a></li>
+                                <li><a href="#">MP-3 плееры и Портативная аудио/видео-техника. Наушники.</a></li>
+                                <li><a href="#">Спутниковое телевидение</a></li>
+                                <li><a href="#">Телевизоры</a></li>
+                                <li><a href="#">Игровые приставки</a></li>
+                                <li><a href="#">Другое</a></li>
+                            </ul>
+                        </li>
+                        <li>
+                            <a href="#">Авто. Мото</a>
+                            <ul class="dropdown-menu sub-menu">
+                                <li><a href="#">Грузовые автомобили и прицепы</a></li>
+                                <li><a href="#">Спец. техника. Трактора</a></li>
+                                <li><a href="#">Автобусы</a></li>
+                                <li><a href="#">Водный транспорт</a></li>
+                                <li><a href="#">Мотозапчасти. мотоаксессуары</a></li>
+                                <li><a href="#">Другое</a></li>
+                            </ul>
+                        </li>
+                        <li>
+                            <a href="#">Автозапчасти и автоаксессуары</a>
+                            <ul class="dropdown-menu sub-menu">
+                                <li><a href="#">Расходники</a></li>
+                                <li><a href="#">Двигатели. Система пуска и зарядки. Система зажигания</a></li>
+                                <li><a href="#">Система охлаждения, отопления, вентиляции</a></li>
+                                <li><a href="#">Топливная система. Система спуска</a></li>
+                                <li><a href="#">Сцепление. Коробка передач. Привод</a></li>
+                                <li><a href="#">Подвеска. Рулевое управление</a></li>
+                                <li><a href="#">Тормозная система.</a></li>
+                                <li><a href="#">Автомобильная оптика. Тюнинг. Автосигнализация</a></li>
+                                <li><a href="#">Шины и диски</a></li>
+                                <li><a href="#">Аккумуляторы</a></li>
+                                <li><a href="#">GPS навигаторы</a></li>
+                                <li><a href="#">Видеорегистраторы</a></li>
+                                <li><a href="#">Другое</a></li>
+                            </ul>
+                        </li>
+                        <li>
+                            <a href="#">Дом. Дача</a>
+                            <ul class="dropdown-menu sub-menu">
+                                <li><a href="#">Шкафы. Комоды. Горки. Секции. Полки</a></li>
+                                <li><a href="#">Диваны. Кресла. Мягкая мебель.</a></li>
+                                <li><a href="#">Столы. Стулья. Тумбы</a></li>
+                                <li><a href="#">Кровати. Матрасы. Мебель для спальни</a></li>
+                                <li><a href="#">Кухни и кухонная мебель</a></li>
+                                <li><a href="#">Мебель для детской комнаты</a></li>
+                                <li><a href="#">Мебель для ванной</a></li>
+                                <li><a href="#">Офисная мебель</a></li>
+                                <li><a href="#">Элементы интерьера. Дизайн</a></li>
+                                <li><a href="#">Посуда и кухонные принадлежности</a></li>
+                                <li><a href="#">Бытовая техника</a></li>
+                                <li><a href="#">Растения. Дача. Сад и огород. Ландшафтный дизайн</a></li>
+                                <li><a href="#">Газонокосилки. Триммеры. Кусторезы</a></li>
+                                <li><a href="#">Другое</a></li>
+                            </ul>
+                        </li>
+                        <li>
+                            <a href="#">Коллекционирование</a>
+                            <ul class="dropdown-menu sub-menu">
+                                <li><a href="#">Медали. Жетоны. Значки</a></li>
+                                <li><a href="#">Банкноты. Ценные бумаги</a></li>
+                                <li><a href="#">Военные вещи</a></li>
+                                <li><a href="#">Марки</a></li>
+                                <li><a href="#">Модели. Фигурки</a></li>
+                                <li><a href="#">Аксессуары</a></li>
+                                <li><a href="#">Другое</a></li>
+                            </ul>
+                        </li>
+                        <li>
+                            <a href="#">Одежда. Обувь. Аксессуары.</a>
+                            <ul class="dropdown-menu sub-menu">
+                                <li><a href="#">Женская одежда</a></li>
+                                <li><a href="#">Женская обувь</a></li>
+                                <li><a href="#">Мужская одежда</a></li>
+                                <li><a href="#">Детская одежда</a></li>
+                                <li><a href="#">Детская обувь</a></li>
+                                <li><a href="#">Головные уборы</a></li>
+                                <li><a href="#">Бижутерия</a></li>
+                                <li><a href="#">Наручные часы</a></li>
+                                <li><a href="#">Аксессуары</a></li>
+                                <li><a href="#">Старинная одежда. Винтаж</a></li>
+                                <li><a href="#">Другое</a></li>
+                            </ul>
+                        </li>
+                    </ul>
+                <li><a style="color:black;" href="/Lots">@Model.SectionName</a></li>
+                <li><a>=></a></li>
+                <li><a style="color:black;" href="/Home/About">@Model.CategoryName</a></li>
+            </ul>
         </div>
     </div>
-    <div class="lotContentInfo">
-        <div class="lotInfo">
-            <div class="title">
-                <h1 style="margin-top:10px;"><strong>@Model.Name</strong></h1>
-            </div>
-            <div class="lotAdditionalInfo">
-                @if (Model.State == "finished")
-                {
-                    <p>Завершен <span style="color:black;">@Model.FinishDate.ToString("F")</span></p>
-                }
-                else if (Model.State == "started")
-                {
-                    <p>Начало торгов: <span style="color:black;">@Model.StartDate.ToString("F")</span></p>
-                    <p>Конец торгов:  <span style="color:black;">@Model.FinishDate.ToString("F")</span></p>
-                }
-                @if (Model.State == "pending")
-                {<p>Состояние:  <span style="color:black;">Ожидает подтверждения</span></p> }
-                else if (Model.State == "rejected")
-                { <p>Состояние:  <span style="color:black;">Отклонен</span></p> }
-                else if (Model.State == "started")
-                { <p>Состояние:  <span style="color:black;">Торги начались</span></p>}
-                else if (Model.State == "finished")
-                { <p>Состояние:  <span style="color:black;">Торги завершены</span></p>}
-                <p>Начальная цена: <span style="color:black;">@Model.MinimalPrice.ToString("F")</span> бел. руб.</p>
-                <p>Минимальный шаг: <span style="color:black;">@Model.MinimalStep.ToString("F")</span> бел. руб.</p>
-
-            </div>
-            </div>
+</div>
+<div class="lotContentInfo">
+    <div class="lotInfo">
+        <div class="title">
+            <h1 style="margin-top:10px;"><strong>@Model.Name</strong></h1>
         </div>
-    <div>
-        <hr />
-        <div id="main_area">
-            <!-- Slider -->
-            <div" class="row">
-                <div class="col-sm-2" id="slider-thumbs">
-                    <!-- Bottom switcher of slider -->
-                    <ul class="hide-bullets">
-                        @if (Model.UserImagesID.Count == 0)
+        <div class="lotAdditionalInfo">
+            @if (Model.State == "finished")
+            {
+                <p>Завершен <span style="color:black;">@Model.FinishDate.ToString("F")</span></p>
+            }
+            else if (Model.State == "started")
+            {
+                <p>Начало торгов: <span style="color:black;">@Model.StartDate.ToString("F")</span></p>
+                <p>Конец торгов:  <span style="color:black;">@Model.FinishDate.ToString("F")</span></p>
+            }
+            @if (Model.State == "pending")
+            {<p>Состояние:  <span style="color:black;">Ожидает подтверждения</span></p> }
+            else if (Model.State == "rejected")
+            { <p>Состояние:  <span style="color:black;">Отклонен</span></p> }
+            else if (Model.State == "started")
+            { <p>Состояние:  <span style="color:black;">Торги начались</span></p>}
+            else if (Model.State == "finished")
+            { <p>Состояние:  <span style="color:black;">Торги завершены</span></p>}
+            <p>Начальная цена: <span style="color:black;">@Model.MinimalPrice.ToString("F")</span> бел. руб.</p>
+            <p>Минимальный шаг: <span style="color:black;">@Model.MinimalStep.ToString("F")</span> бел. руб.</p>
+
+        </div>
+    </div>
+</div>
+<div>
+    <hr />
+    <div id="main_area">
+        <!-- Slider -->
+        <div" class="row">
+            <div class="col-sm-2" id="slider-thumbs">
+                <!-- Bottom switcher of slider -->
+                <ul class="hide-bullets">
+                    @if (Model.UserImagesID.Count == 0)
+                    {
+                        <li class="col-sm-12">
+                            <a class="thumbnail" id="carousel-selector-0"><img src="https://drive.google.com/uc?export=view&id=1R65ppqtbBGs3CJMKRDL8Mb5cA1WpA1-y"></a>
+                        </li>
+                    }
+                    else
+                    {
+                        for (int i = 0; i < Model.UserImagesID.Count; i++)
                         {
+                            string GoogleDriveViewUrl = "https://drive.google.com/uc?export=view&id=" + Model.UserImagesID[i];
+                            string id = "carousel-selector-" + i.ToString();
                             <li class="col-sm-12">
-                                <a class="thumbnail" id="carousel-selector-0"><img src="https://drive.google.com/uc?export=view&id=1R65ppqtbBGs3CJMKRDL8Mb5cA1WpA1-y"></a>
+                                <a class="thumbnail" id="@id"><img src="@GoogleDriveViewUrl"></a>
                             </li>
+                        }
+                    }
+                </ul>
+            </div>
+            <div class="col-sm-4" id="mainimage">
+                <div class="col-xs-12" id="slider">
+                    <!-- Top part of the slider -->
+                    <div class="row">
+                        <div class="col-sm-12" id="carousel-bounding-box">
+                            <div class="carousel slide" id="myCarousel">
+                                <!-- Carousel items -->
+                                <div class="carousel-inner">
+                                    @if (Model.UserImagesID.Count == 0)
+                                    {
+                                        <div class="active item" data-slide-number="0">
+                                            <img src="https://drive.google.com/uc?export=view&id=1R65ppqtbBGs3CJMKRDL8Mb5cA1WpA1-y">
+                                        </div>
+
+                                    }
+                                    else
+                                    {
+                                        for (int i = 0; i < Model.UserImagesID.Count; i++)
+                                        {
+                                            string GoogleDriveViewUrl = "https://drive.google.com/uc?export=view&id=" + Model.UserImagesID[i];
+                                            string id = "carousel-selector-" + i.ToString();
+                                            string imgClass = "item";
+                                            if (i == 0) { imgClass = "active item"; }
+
+                                            <div class="@imgClass" data-slide-number="@i.ToString()">
+                                                <img src="@GoogleDriveViewUrl">
+                                            </div>
+                                        }
+                                    }
+
+                                </div>
+                                <!-- Carousel nav -->
+                                <a class="left carousel-control" href="#myCarousel" role="button" data-slide="prev">
+                                    <span class="glyphicon glyphicon-chevron-left"></span>
+                                </a>
+                                <a class="right carousel-control" href="#myCarousel" role="button" data-slide="next">
+                                    <span class="glyphicon glyphicon-chevron-right"></span>
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <!--/Slider-->
+            <div id="BidPanel" class="col-sm-3">
+                <p style="font-size:20px; color:#838383;"><strong id="CurrentPrice" style="font-size:30px; color:black;">@Model.CurrentPrice.ToString("F")</strong> бел. руб.</p>
+                <input style="float:right; margin-left:20px;" type="button" id="btnShowBids" class="btn btn-primary" value="Ставки" />
+                <div id="BidsModal" class="modal fade" role="dialog">
+                    <div class="modal-dialog">
+                        <!-- Modal content-->
+                        <div id="modalContent" class="modal-content">
+
+                        </div>
+
+                    </div>
+                </div>
+
+                <div class="input-group">
+                    @{
+                        string placeholder = default(string);
+                        if (Model.CurrentPrice == 0) { placeholder = Model.MinimalPrice.ToString("F"); }
+                        else { placeholder = (Model.CurrentPrice + Model.MinimalStep).ToString("F"); }
+                        <input type="text" name="newBid" id="newBid" style="font-size:25px;" class="form-control" placeholder="@placeholder" aria-label="" aria-describedby="basic-addon2">
+                        <input type="text" name="lotId" id="lotId" value="@Model.LotId" hidden />
+                    }
+                    <div class="input-group-btn bidBtn">
+
+                        @if (HttpContext.Current.User.Identity.Name == Model.UserName)
+                        {
+                            <button disabled class="btn btn-outline-secondary" onclick="sendBid()"><strong style="color:white" class="bidText">Сделать ставку</strong></button>
+
                         }
                         else
                         {
-                            for (int i = 0; i < Model.UserImagesID.Count; i++)
-                            {
-                                string GoogleDriveViewUrl = "https://drive.google.com/uc?export=view&id=" + Model.UserImagesID[i];
-                                string id = "carousel-selector-" + i.ToString();
-                                <li class="col-sm-12">
-                                    <a class="thumbnail" id="@id"><img src="@GoogleDriveViewUrl"></a>
-                                </li>
-                            }
+                            <button class="btn btn-outline-secondary" onclick="sendBid()"><strong style="color:white" class="bidText">Сделать ставку</strong></button>
                         }
-                    </ul>
-                </div>
-                <div class="col-sm-4" id="mainimage">
-                    <div class="col-xs-12" id="slider">
-                        <!-- Top part of the slider -->
-                        <div class="row">
-                            <div class="col-sm-12" id="carousel-bounding-box">
-                                <div class="carousel slide" id="myCarousel">
-                                    <!-- Carousel items -->
-                                    <div class="carousel-inner">
-                                        @if (Model.UserImagesID.Count == 0)
-                                        {
-                                            <div class="active item" data-slide-number="0">
-                                                <img src="https://drive.google.com/uc?export=view&id=1R65ppqtbBGs3CJMKRDL8Mb5cA1WpA1-y">
-                                            </div>
-
-                                        }
-                                        else
-                                        {
-                                            for (int i = 0; i < Model.UserImagesID.Count; i++)
-                                            {
-                                                string GoogleDriveViewUrl = "https://drive.google.com/uc?export=view&id=" + Model.UserImagesID[i];
-                                                string id = "carousel-selector-" + i.ToString();
-                                                string imgClass = "item";
-                                                if (i == 0) { imgClass = "active item"; }
-
-                                                <div class="@imgClass" data-slide-number="@i.ToString()">
-                                                    <img src="@GoogleDriveViewUrl">
-                                                </div>
-                                            }
-                                        }
-
-                                    </div>
-                                    <!-- Carousel nav -->
-                                    <a class="left carousel-control" href="#myCarousel" role="button" data-slide="prev">
-                                        <span class="glyphicon glyphicon-chevron-left"></span>
-                                    </a>
-                                    <a class="right carousel-control" href="#myCarousel" role="button" data-slide="next">
-                                        <span class="glyphicon glyphicon-chevron-right"></span>
-                                    </a>
-                                </div>
-                            </div>
-                        </div>
                     </div>
                 </div>
-                <!--/Slider-->
-                <div id="BidPanel" class="col-sm-3">
-                    <p style="font-size:20px; color:#838383;"><strong id="CurrentPrice" style="font-size:30px; color:black;">@Model.CurrentPrice.ToString("F")</strong> бел. руб.</p>
-                    <input style="float:right; margin-left:20px;" type="button" id="btnShowBids" class="btn btn-primary" value="Ставки" />
-                    <div id="BidsModal" class="modal fade" role="dialog">
-                        <div class="modal-dialog">
-                            <!-- Modal content-->
-                            <div id="modalContent" class="modal-content">
-
-                            </div>
-
-                        </div>
-                    </div>
-
-                        <div class="input-group">
-                            @{
-                                string placeholder = default(string);
-                                if (Model.CurrentPrice == 0) { placeholder = Model.MinimalPrice.ToString("F"); }
-                                else { placeholder = (Model.CurrentPrice + Model.MinimalStep).ToString("F"); }
-                                <input type="text" name="newBid" id="newBid" style="font-size:25px;" class="form-control" placeholder="@placeholder" aria-label="" aria-describedby="basic-addon2">
-                                <input type="text" name="lotId" id="lotId" value="@Model.LotId" hidden/>
-                            }
-                            <div class="input-group-btn bidBtn">
-
-                                @if (HttpContext.Current.User.Identity.Name == Model.UserName)
-                                {
-                                    <button disabled class="btn btn-outline-secondary" onclick="sendBid()" ><strong style="color:white" class="bidText">Сделать ставку</strong></button>
-
-                                }
-                                else
-                                {
-                                    <button class="btn btn-outline-secondary" onclick="sendBid()"><strong style="color:white" class="bidText">Сделать ставку</strong></button>
-                                }
-                            </div>
-                        </div>
-                        <div id="ErrorContainer" style="float:left; margin-left:0;"></div>
+                <div id="ErrorContainer" style="float:left; margin-left:0;"></div>
+            </div>
+            <div id="userInfo" class="col-sm-2" style="border-left:1px solid #EEEEEE">
+                <div class="imgWrap">
+                    <img style="height:100px; width:100px;" src="https://drive.google.com/uc?export=view&id=1R65ppqtbBGs3CJMKRDL8Mb5cA1WpA1-y" alt="">
                 </div>
-                <div id="userInfo" class="col-sm-2" style="border-left:1px solid #EEEEEE">
-                    <div class="imgWrap">
-                        <img style="height:100px; width:100px;" src="https://drive.google.com/uc?export=view&id=1R65ppqtbBGs3CJMKRDL8Mb5cA1WpA1-y" alt="">
-                    </div>
-                    <div style="margin-bottom:30px;" class="txtWrap">
-                        <a href="#" style="color:#080E9B; font-size:25px;">@Model.UserName</a>
-                        <br />
-                        <img src="https://drive.google.com/uc?export=view&id=11iP5j2VBCGsXQy9TboST4opI48f3x5m3"><strong style="font-size:20px;">@Model.UserPositiveReviews</strong>
-                        <img style="margin-left:5px;" src="https://drive.google.com/uc?export=view&id=1YkD8vwNgpMfAsenQYcTDwS7VKJArmzrf"><strong style="font-size:20px;">@Model.UserNegativeReviews</strong>
-                    </div>
+                <div style="margin-bottom:30px;" class="txtWrap">
+                    <a href="#" style="color:#080E9B; font-size:25px;">@Model.UserName</a>
                     <br />
-                    <br />
-                    <div>
-                        <p style="font-size:15px;">@Model.UserLocation</p>
-                        <a href="#" style="color:#080E9B; font-size:15px;">Все лоты продавца</a>
-
-                    </div>
+                    <img src="https://drive.google.com/uc?export=view&id=11iP5j2VBCGsXQy9TboST4opI48f3x5m3"><strong style="font-size:20px;">@Model.UserPositiveReviews</strong>
+                    <img style="margin-left:5px;" src="https://drive.google.com/uc?export=view&id=1YkD8vwNgpMfAsenQYcTDwS7VKJArmzrf"><strong style="font-size:20px;">@Model.UserNegativeReviews</strong>
                 </div>
-        </div>
-        <hr />
-        <div style="margin-top:30px; margin-left:20px;">
-            <h2>Описание лота</h2>
-        </div>
-        <div style="margin-left:20px;" class="row lotDescription">
-            <div class="col-md-7">
-                <p style="font-size:20px;">@Model.Description</p>
+                <br />
+                <br />
+                <div>
+                    <p style="font-size:15px;">@Model.UserLocation</p>
+                    <a href="#" style="color:#080E9B; font-size:15px;">Все лоты продавца</a>
+
+                </div>
             </div>
-        </div>
-        <hr />
-        <div style="margin-top:30px; margin-left:20px;">
-            <h2>Доставка и оплата</h2>
-        </div>
-        <div style="margin-left:20px;" class="row lotDescription">
-            <div class="col-md-5">
-                @if (Model.ByPost)
-                {
-                    <p style="font-size:20px;">Отправка почтой</p>
-
-                }
-                @if (Model.DeliveryInPerson)
-                {
-                    <p class="deliveryDescription">Передача лично</p>
-
-                }
-                @if (Model.ByPostToAnotherCountry)
-                {
-                    <p class="deliveryDescription">Отправка почтой в другую страну</p>
-
-                }
-                @if (Model.ReturnAfterBuyingIsForbidden)
-                {
-                    <p class="deliveryDescription">Возврат товара после покупки невозможен</p>
-
-                }
-            </div>
-            <div class="col-md-5">
-                @if (Model.Cash)
-                {
-                    <p style="font-size:20px;">Наличный расчет</p>
-
-                }
-                @if (Model.NonCash)
-                {
-                    <p class="deliveryDescription">Безналичный расчет</p>
-
-                }
-                @if (Model.FullPrepaymentPostSending)
-                {
-                    <p class="deliveryDescription">Полная предоплата до отправки лота по почте</p>
-
-                }
-
-            </div>
+    </div>
+    <hr />
+    <div style="margin-top:30px; margin-left:20px;">
+        <h2>Описание лота</h2>
+    </div>
+    <div style="margin-left:20px;" class="row lotDescription">
+        <div class="col-md-7">
+            <p style="font-size:20px;">@Model.Description</p>
         </div>
     </div>
+    <hr />
+    <div style="margin-top:30px; margin-left:20px;">
+        <h2>Доставка и оплата</h2>
+    </div>
+    <div style="margin-left:20px;" class="row lotDescription">
+        <div class="col-md-5">
+            @if (Model.ByPost)
+            {
+                <p style="font-size:20px;">Отправка почтой</p>
 
-<script>
+            }
+            @if (Model.DeliveryInPerson)
+            {
+                <p class="deliveryDescription">Передача лично</p>
 
+            }
+            @if (Model.ByPostToAnotherCountry)
+            {
+                <p class="deliveryDescription">Отправка почтой в другую страну</p>
+
+            }
+            @if (Model.ReturnAfterBuyingIsForbidden)
+            {
+                <p class="deliveryDescription">Возврат товара после покупки невозможен</p>
+
+            }
+        </div>
+        <div class="col-md-5">
+            @if (Model.Cash)
+            {
+                <p style="font-size:20px;">Наличный расчет</p>
+
+            }
+            @if (Model.NonCash)
+            {
+                <p class="deliveryDescription">Безналичный расчет</p>
+
+            }
+            @if (Model.FullPrepaymentPostSending)
+            {
+                <p class="deliveryDescription">Полная предоплата до отправки лота по почте</p>
+
+            }
+
+        </div>
+    </div>
+    @if (Model.PostPaymentAdditionalInformation != "")
+    {
+    <div style="margin-top:30px; margin-left:20px;">
+        <h2>Дополнительная информация о доставке и оплате</h2>
+    </div>
+    <div style="margin-left:20px;" class="row lotDescription">
+        <div class="col-md-8">
+            <p style="font-size:20px;">@Model.PostPaymentAdditionalInformation</p>
+        </div>
+    </div>
+    }
+    @section scripts{
+        <script src="~/Scripts/jquery.signalR-2.2.3.min.js"></script>
+        <script src="~/signalr/hubs"></script>
+    }
+
+    <script>
+
+    $(document).ready(function () {
+        $.connection.hub.start().done(function () {
+            executeUpdate();
+        });
+    });
     window.addEventListener('load', function () {
         var mainimgHeight = $("#mainimage").height();
         $("#slider-thumbs").height(mainimgHeight);
@@ -505,6 +382,37 @@
     });
 
     $(function () {
+        var detailsHub = $.connection.lotDetailsHub;
+
+
+             detailsHub.client.updateLotData =  function (id) {
+        var lotId = $('#lotId').val();
+        if (id == lotId) {
+
+            console.log("updatelotdata");
+            $.ajax({
+                type: 'POST',
+                data: { lotId: lotId },
+                url: '@Url.Action("UpdateLotData", "Lot" ,new {lotId = "lotId"})',
+                success: function (data) {
+                    if (data.isSuccess) {
+                        var price = data.newLotPrice;
+                        if ($("#CurrentPrice").text() != price) { $("#CurrentPrice").text(price); }
+                        var placeholder = data.newPlaceHolder;
+                        if ($("#newBid").attr("placeholder") != placeholder) { $("#newBid").attr("placeholder", placeholder); }
+                    }
+                }
+            });
+        }
+        }
+
+        executeUpdate = function () {
+            $.connection.hub.start().done(function () {
+
+                detailsHub.server.updateLotData($('#lotId').val());
+            });
+        }
+
         $('#myCarousel').carousel({
             interval: 5000
         });
@@ -538,12 +446,13 @@
                     }
                 });
                 $('#BidsModal').modal('show');
-            });
-        
+        });
 
-            
-    })
-    function delBid(clicked_id) {
+
+    });
+
+
+        function delBid(clicked_id) {
         console.log(clicked_id);
         var parent = $("#" + clicked_id).parent()
         var parentDiv = parent.parent();
@@ -555,12 +464,13 @@
                 if (data == "ok") {
                     parentDiv.empty();
                     parentDiv.remove();
-                    updateLots('btnRefreshBids');
+                    updateBids('btnRefreshBids');
+                    executeUpdate();
                 }
             }
         });
     }
-    function updateLots() {
+    function updateBids() {
         $('#bidBody').empty();
         var id = $('#LotId').text();
         console.log(id);
@@ -568,8 +478,6 @@
             type: 'GET',
             url: '/Lot/GetBids?id=' + id,
             success: function (data) {
-
-                // заменяем содержимое присланным частичным представлением
                 $('#modalContent').html(data);
             }
         });
@@ -584,20 +492,158 @@
             success: function (data) {
                 $("#ErrorContainer").empty();
                 if (data.isSuccess) {
-                    var price = data.newLotPrice;
-                    console.log(price);
-                    $("#CurrentPrice").text(price);
-                    var placeholder = data.newPlaceHolder;
-                    $("#newBid").attr("placeholder", placeholder);
-                    $("#newBid").val("");
+                    $('#newBid').val("");
+                    executeUpdate();
                 }
                 else {
                     var error = '<br/><span style="float:left;font-size:15px; color:red;">' + data.bidErrors[0] + '</span>';
                     $('#ErrorContainer').append(error);
                 }
-                // заменяем содержимое присланным частичным представлением
             }
         });
     }
-    
-</script>
+
+
+    </script>
+
+    <style>
+        .lotBar-contaner ul li a {
+            font-size: 14px;
+        }
+
+        .lotBar-sections {
+            color: black;
+            text-decoration: dashed;
+        }
+
+        .dropdown-content {
+            display: none;
+            position: absolute;
+            min-width: 160px;
+            z-index: 1;
+        }
+
+            .dropdown-content li a {
+                color: black;
+                text-decoration: none;
+                display: block;
+            }
+
+                .dropdown-content li a:hover {
+                    background-color: #ddd;
+                }
+
+        .dropdown:hover .dropdown-content {
+            display: block;
+        }
+
+        .lotContentInfo {
+            margin-left: 10px;
+        }
+
+            .lotContentInfo hr {
+                margin-left: -10px;
+            }
+
+        .lotAdditionalInfo p {
+            font-family: "Times New Roman", Times, serif;
+            color: #7B7B7B;
+            font-size: 15px;
+            display: inline;
+            margin-right: 10px;
+        }
+
+        .hide-bullets {
+            list-style: none;
+            margin-left: -40px;
+            margin-top: 20px;
+        }
+
+        .thumbnail {
+            padding: 0;
+        }
+
+        .carousel-inner > .item > img, .carousel-inner > .item > a > img {
+            width: 100%;
+        }
+
+        #slider-thumbs {
+            overflow-y: scroll;
+            white-space: nowrap;
+        }
+
+        hr {
+            margin-left: -10px;
+        }
+
+
+        .bidBtn {
+            background-color: #3A7999;
+        }
+
+        .btn {
+            background-color: #3A7999;
+        }
+
+
+        .imgWrap {
+            margin: 0px 8px 0px 0px;
+            float: left;
+        }
+
+        .txtWrap {
+            display: table-cell;
+        }
+
+        .lotDescription div {
+            margin-top: 30px;
+        }
+
+        .deliveryDescription {
+            font-size: 20px;
+            margin-top: 15px;
+        }
+
+
+        .container {
+            position: relative;
+            width: 100%;
+            float: left;
+        }
+
+        .overlay {
+            position: absolute;
+            left: 100%;
+            background-color: #FFFFFF;
+            overflow: hidden;
+            width: 0;
+        }
+
+        .container:hover .overlay {
+            background-color: #FFFFFF;
+            overflow: visible;
+            width: 100%;
+            bottom: 100%;
+        }
+
+
+        .sidebar-nav {
+            padding: 9px 0;
+        }
+
+        .dropdown-menu .sub-menu {
+            left: 100%;
+            position: absolute;
+            top: 0;
+            visibility: hidden;
+            margin-top: -1px;
+        }
+
+        .dropdown-menu li:hover .sub-menu {
+            visibility: visible;
+        }
+
+        .dropdown:hover .dropdown-menu {
+            display: block;
+        }
+    </style>

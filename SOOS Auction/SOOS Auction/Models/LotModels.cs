@@ -189,6 +189,14 @@ namespace SOOS_Auction.Models
         public string CurrentUserName { get; set; }
 
     }
+
+    public class LotData
+    {
+        public bool isSuccess { get; set; }
+        public string newLotPrice { get; set; }
+        public string newPlaceHolder { get; set; }
+    }
+
     public class NewBidResult
     {
         public NewBidResult()
@@ -196,9 +204,7 @@ namespace SOOS_Auction.Models
             bidErrors = new List<string>();
         }
 
-        public bool isSuccess { get; set; }
-        public string newLotPrice { get; set; }
-        public string newPlaceHolder { get; set; }
         public List<string> bidErrors { get; set; }
+        public bool isSuccess { get; set; }
     }
 }
