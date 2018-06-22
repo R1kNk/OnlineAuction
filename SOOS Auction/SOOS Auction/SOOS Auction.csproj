@@ -35,6 +35,7 @@
     <DefineConstants>DEBUG;TRACE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
+    <UseVSHostingProcess>true</UseVSHostingProcess>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
     <DebugSymbols>true</DebugSymbols>
@@ -257,6 +258,7 @@
       <DependentUpon>Global.asax</DependentUpon>
     </Compile>
     <Compile Include="Hubs\LotDetailsHub.cs" />
+    <Compile Include="Hubs\TimerUpdateHub.cs" />
     <Compile Include="Migrations\201806191624186_InitialCreate.cs" />
     <Compile Include="Migrations\201806191624186_InitialCreate.Designer.cs">
       <DependentUpon>201806191624186_InitialCreate.cs</DependentUpon>

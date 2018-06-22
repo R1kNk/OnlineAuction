@@ -162,6 +162,7 @@ namespace SOOS_Auction.Controllers
                 if (result.Succeeded)
                 {
                     await UserManager.AddToRoleAsync(user.Id, "user");
+                    user.AvatarUrl = "1R65ppqtbBGs3CJMKRDL8Mb5cA1WpA1-y";
                     await SignInManager.SignInAsync(user, isPersistent:false, rememberBrowser:false);
                     // For more information on how to enable account confirmation and password reset please visit https://go.microsoft.com/fwlink/?LinkID=320771
                     // Send an email with this link

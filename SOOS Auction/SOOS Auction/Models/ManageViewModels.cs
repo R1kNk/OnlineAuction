@@ -12,6 +12,14 @@ namespace SOOS_Auction.Models
         public string PhoneNumber { get; set; }
         public bool TwoFactor { get; set; }
         public bool BrowserRemembered { get; set; }
+        public string UserName { get; set; }
+
+        public string Gender { get; set; }
+        public string TelephoneNumber { get; set; }
+        public string AvatarUrl { get; set; }
+        public int PositiveReview { get; set; }
+        public int NegativeReview { get; set; }
+        public string UserLocation { get; set; }
     }
 
     public class ManageLoginsViewModel

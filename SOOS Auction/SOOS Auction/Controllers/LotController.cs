@@ -9,6 +9,7 @@ using System.Data.Entity;
 using System.IO;
 using System.Linq;
 using System.Net;
+using System.Threading.Tasks;
 using System.Web;
 using System.Web.Mvc;
 
@@ -72,8 +73,6 @@ namespace SOOS_Auction.Controllers
         [Authorize]
         public ActionResult Create()
         {
-            UpdateLotPrice(2);
-
             DeleteUserImages();
             AuctionContext auctionContext = new AuctionContext();
             List<Lot> lots = auctionContext.Lots.Include(path=>path.LotPayment).Include(p=>p.LotReceiving).ToList();
@@ -88,7 +87,7 @@ namespace SOOS_Auction.Controllers
 
         [Authorize]
         [HttpPost]
-        public ActionResult Create(LotCreate model)
+        public async Task<ActionResult> Create(LotCreate model)
         {
             AuctionContext auctionContext = new AuctionContext();
             if (!ModelState.IsValid)
@@ -115,24 +114,36 @@ namespace SOOS_Auction.Controllers
             newLot.LotPayment = newPayment;
             auctionContext.Lots.Add(newLot);
             auctionContext.SaveChanges();
-            //image uploading
+            //
             string newFolderId = FileApiMethods.CreateFolder(newLot.LotId);
             FileApiMethods.MakeFilePublic(newFolderId);
+            newLot.ImagesUrl = newFolderId;
+            auctionContext.SaveChanges();
+            var outer = Task.Factory.StartNew(() =>      
+            {
+                UploadImages(newFolderId);
+                return RedirectToAction("xyi", "Home");
+                
+            });
+            return RedirectToAction("About", "Home");
+            //image uploading
+            
+            
+            //image uploading
+        }
+         
+        public void UploadImages(string folderId)
+        {
             List<string> files = GetUserImages();
             if (files.Count != 0)
             {
                 foreach (var file in files)
                 {
                     string mimeType = MimeMapping.GetMimeMapping(file);
-                    FileApiMethods.Upload(file, file, mimeType, newFolderId);
+                    FileApiMethods.Upload(file, file, mimeType, folderId);
                 }
 
             }
-            newLot.ImagesUrl = newFolderId;
-            auctionContext.SaveChanges();
-            List<string> lul = FileApiMethods.GetFilesIDFromFolder(newFolderId);
-            //image uploading
-            return RedirectToAction("About", "Home");
         }
 
         [Authorize]
@@ -161,7 +172,9 @@ namespace SOOS_Auction.Controllers
             if (findedLot == null) {
                 newBidResult.bidErrors.Add("Лот не существует либо удален. Обновите страницу."); return Json(newBidResult);
             };
-            if (findedLot.CurrentPrice + findedLot.MinimalStep > newBidPrice)
+            if (findedLot.State!="started") { newBidResult.bidErrors.Add("Вы не можете сделать ставку на лот, торги на который не идут!"); return Json(newBidResult); }
+
+                if (findedLot.CurrentPrice + findedLot.MinimalStep > newBidPrice)
             {
                 newBidResult.bidErrors.Add("Ставка должна быть больше либо равна суммы текущей цены и минимального шага!"); return Json(newBidResult);
             }
@@ -171,6 +184,7 @@ namespace SOOS_Auction.Controllers
             }
             Bid newbid = new Bid() { LotId = findedLot.LotId, Price = newBidPrice, BidDate = DateTime.Now, User = HttpContext.User.Identity.GetUserId() };
             context.Bids.Add(newbid);
+            
             context.SaveChanges();
             UpdateLotPrice(lotId);
             context = new AuctionContext();
@@ -179,6 +193,13 @@ namespace SOOS_Auction.Controllers
             {
                 newBidResult.bidErrors.Add("Лот не существует либо удален. Обновите страницу."); return Json(newBidResult);
             }
+            newBidResult.WinnerId = findedLot.WinnerId;
+            ApplicationUser winner = UserManager.Users.Where(p => p.Id == newBidResult.WinnerId).SingleOrDefault();
+            if (winner == null)
+            {
+                newBidResult.bidErrors.Add("Потенциальный победитель не существует или удален!"); return Json(newBidResult);
+            }
+            newBidResult.WinnerName = winner.UserName;
             newBidResult.isSuccess = true;
             return Json(newBidResult);
         }
@@ -199,6 +220,13 @@ namespace SOOS_Auction.Controllers
             {
                 lotData.newLotPrice = findedLot.CurrentPrice.ToString("F");
                 lotData.newPlaceHolder = (findedLot.CurrentPrice + findedLot.MinimalStep).ToString("F");
+                lotData.WinnerId = findedLot.WinnerId;
+                ApplicationUser winner = UserManager.Users.Where(p => p.Id == lotData.WinnerId).SingleOrDefault();
+                if (winner == null)
+                {
+                    lotData.isSuccess = false; return Json(lotData);
+                }
+                lotData.WinnerName = winner.UserName;
             }
             else
             {
@@ -209,7 +237,48 @@ namespace SOOS_Auction.Controllers
             return Json(lotData);
         }
 
+        [Authorize]
+        [HttpPost]
+        public JsonResult FinishLot(int lotId)
+        {
+            AuctionContext context = new AuctionContext();
+            Lot findedLot;
+            findedLot = context.Lots.Where(p => p.LotId == lotId).SingleOrDefault();
+            if (findedLot == null)
+            {
+               return Json("no");
+            };
+            if (findedLot.State == "started")
+            {
+                findedLot.State = "finished";
+                context.SaveChanges();
+                return Json("ok");
+            }
+            else if(findedLot.State=="finished") { return Json("finished"); }
+                return Json("no");
+        }
 
+        [Authorize]
+        [HttpGet]
+        public JsonResult UpdateWinnerInfo (int lotId)
+        {
+            WinnerInfo info = new WinnerInfo();
+            AuctionContext context = new AuctionContext();
+           Lot findedLot = context.Lots.Where(p => p.LotId == lotId).SingleOrDefault();
+            if (findedLot == null)
+            {
+                info.isSuccess = false; return Json(info);
+            }
+            info.WinnerId = findedLot.WinnerId;
+            ApplicationUser winner = UserManager.Users.Where(p => p.Id == info.WinnerId).SingleOrDefault();
+            if (winner == null)
+            {
+                info.isSuccess = false;  return Json(info);
+            }
+            info.WinnerName = winner.UserName;
+            info.isSuccess = true;
+            return Json(info);
+        }
         public void UpdateLotPrice(int id)
         {
             AuctionContext context = new AuctionContext();
@@ -221,10 +290,12 @@ namespace SOOS_Auction.Controllers
             else
             {
                 findedLot.CurrentPrice = bids[0].Price;
+                findedLot.WinnerId = bids[0].User;
             }
             context.SaveChanges();
 
         }
+
 
         [Authorize]
         public ActionResult GetCategories(int? id)
@@ -248,12 +319,14 @@ namespace SOOS_Auction.Controllers
                 ApplicationUser owner = UserManager.Users.Where(p => p.Id == OwnerID).SingleOrDefault();
                 if (owner == null) return new HttpStatusCodeResult(HttpStatusCode.NotFound);
                 OwnerName = owner.UserName;
+                
             }
             foreach (var Bid in bids)
             {
                 ApplicationUser user = UserManager.Users.Where(p => p.Id == Bid.User).SingleOrDefault();
                 if (user == null) continue;
-                bidsDetails.Add(new BidDetails() { bid = Bid, UserName = user.UserName, LotOwnerUserName = OwnerName, CurrentUserName = HttpContext.User.Identity.Name });
+                bidsDetails.Add(new BidDetails() { bid = Bid, UserName = user.UserName, LotOwnerUserName = OwnerName, CurrentUserName = HttpContext.User.Identity.Name, LotState = Bid.Lot.State });
+                
             }
             bidsDetails = bidsDetails.OrderByDescending(p => p.bid.Price).ToList();
             return PartialView(bidsDetails);
@@ -350,7 +423,7 @@ namespace SOOS_Auction.Controllers
             string lotOwnerId = bid.Lot.UserId;
             ApplicationUser lotOwner = UserManager.Users.Where(p => p.Id == lotOwnerId).SingleOrDefault();
             if (lotOwner == null) return Json(res);
-            if (lotOwner.UserName == HttpContext.User.Identity.Name)
+            if (lotOwner.UserName == HttpContext.User.Identity.Name&&bid.Lot.State=="started")
             {
                 auctionContext.Bids.Remove(bid);
                 auctionContext.SaveChanges();
@@ -407,6 +480,7 @@ namespace SOOS_Auction.Controllers
             lotDetails.UserPositiveReviews = user.PositiveReview;
             lotDetails.UserNegativeReviews = user.NegativeReview;
             lotDetails.UserLocation = user.UserLocation;
+            lotDetails.UserAvatarUrl = user.AvatarUrl;
           
             lotDetails.LotId = findedLot.LotId;
             lotDetails.Name = findedLot.Name;
@@ -432,6 +506,12 @@ namespace SOOS_Auction.Controllers
             lotDetails.UserImagesID = FileApiMethods.GetFilesIDFromFolder(findedLot.ImagesUrl);
             lotDetails.Bids = findedLot.Bids;
             lotDetails.State = findedLot.State;
+            lotDetails.WinnerId = findedLot.WinnerId;
+            ApplicationUser winner = UserManager.Users.Where(p => p.Id == findedLot.WinnerId).SingleOrDefault();
+            if (winner != null)
+            {
+                lotDetails.WinnerName = winner.UserName;
+            }
             return lotDetails;
         }
 

@@ -164,178 +164,220 @@
 {
     @Html.AntiForgeryToken()
 
-    <div class="form-horizontal">
-        <h1 class="modal-title">Новый лот</h1>
-        <hr />
-        @Html.ValidationSummary(true, "", new { @class = "text-danger" })
-        <div class="form-group">
-            @Html.LabelFor(model => model.Name, htmlAttributes: new { @class = "control-label col-md-2" })
-            <div class="col-md-10">
-                @Html.EditorFor(model => model.Name, new { htmlAttributes = new { @class = "form-control" } })
-                @Html.ValidationMessageFor(model => model.Name, "", new { @class = "text-danger" })
+<div class="form-horizontal">
+    <h1 style="margin-left:10px;" class="modal-title">Новый лот</h1>
+    <hr />
+    @Html.ValidationSummary(true, "", new { @class = "text-danger" })
+    <div class="form-group">
+        @Html.LabelFor(model => model.Name, htmlAttributes: new { @class = "control-label col-md-2" })
+        <div class="col-md-6">
+            @Html.EditorFor(model => model.Name, new { @placeholder = "Краткая информация о лоте, которая будет отображаться на главных страницах", htmlAttributes = new { @class = "form-control" } })
+            @Html.ValidationMessageFor(model => model.Name, "", new { @class = "text-danger" })
+        </div>
+    </div>
+
+    <div class="form-group">
+        @Html.LabelFor(model => model.SectionId, htmlAttributes: new { @class = "control-label col-md-2" })
+        <div class="col-md-6">
+            @Html.DropDownListFor(model => model.SectionId, ViewBag.Sections as SelectList, new { id = "section", @class = "form-control col-md-2" })
+            @Html.ValidationMessageFor(model => model.SectionId, "", new { @class = "text-danger" })
+        </div>
+    </div>
+
+    <div class="form-group">
+        @Html.LabelFor(model => model.CategoryId, htmlAttributes: new { @class = "control-label col-md-2" })
+        <div class="col-md-6">
+            @Html.DropDownListFor(model => model.CategoryId, ViewBag.Categories as SelectList, new { id = "category", @class = "form-control" })
+            @Html.ValidationMessageFor(model => model.CategoryId, "", new { @class = "text-danger" })
+        </div>
+    </div>
+
+    <div class="form-group">
+        @Html.LabelFor(model => model.MinimalPrice, htmlAttributes: new { @class = "control-label col-md-2" })
+        <div class="col-md-6">
+            @Html.EditorFor(model => model.MinimalPrice, new { htmlAttributes = new { @class = "form-control" } })
+            @Html.ValidationMessageFor(model => model.MinimalPrice, "", new { @placeholder = "Минимальная цена, с которой начнуться торги", @class = "text-danger" })
+        </div>
+    </div>
+
+    <div class="form-group">
+        @Html.LabelFor(model => model.MinimalStep, htmlAttributes: new { @class = "control-label col-md-2" })
+        <div class="col-md-6">
+            @Html.EditorFor(model => model.MinimalStep, new { @placeholder = "Минимальный шаг для новой ставки", htmlAttributes = new { @class = "form-control" } })
+            @Html.ValidationMessageFor(model => model.MinimalStep, "", new { @class = "text-danger" })
+        </div>
+    </div>
+
+    <div class="form-group">
+        @Html.LabelFor(model => model.Description, htmlAttributes: new { @class = "control-label col-md-2" })
+        <div class="col-md-6">
+            @Html.TextAreaFor(model => model.Description, new { @placeholder = "Подробно опишите ваш лот, его состояние, его особенности", @cols = "130", @rows = "5", htmlAttributes = new { @class = "form-control col-md-2" } })
+            @Html.ValidationMessageFor(model => model.Description, "", new { @class = "text-danger" })
+        </div>
+    </div>
+
+    <div class="form-group">
+        @Html.LabelFor(model => model.DaysDuration, htmlAttributes: new { @class = "control-label col-md-2" })
+        <div class="col-md-6">
+            @Html.EditorFor(model => model.DaysDuration, new { @placeholder = "Сколько дней будет длиться аукцион?", htmlAttributes = new { @class = "form-control" } })
+            @Html.ValidationMessageFor(model => model.DaysDuration, "", new { @class = "text-danger" })
+        </div>
+    </div>
+
+    <div class="form-group">
+        @Html.LabelFor(model => model.Location, htmlAttributes: new { @class = "control-label col-md-2" })
+        <div class="col-md-6">
+            @Html.DropDownListFor(model => model.Location, ViewBag.Locations as List<SelectListItem>, new { @class = "form-control" })
+            @Html.ValidationMessageFor(model => model.Location, "", new { @class = "text-danger" })
+        </div>
+    </div>
+
+    <div class="form-group">
+        @Html.LabelFor(model => model.ByPost, htmlAttributes: new { @class = "control-label col-md-2" })
+        <div class="col-md-6">
+            <div class="checkbox">
+                @Html.EditorFor(model => model.ByPost)
+                @Html.ValidationMessageFor(model => model.ByPost, "", new { @class = "text-danger" })
             </div>
         </div>
+    </div>
 
-        <div class="form-group">
-            @Html.LabelFor(model => model.SectionId, htmlAttributes: new { @class = "control-label col-md-2" })
-            <div class="col-md-10">
-                @Html.DropDownListFor(model => model.SectionId, ViewBag.Sections as SelectList, new { id = "section", @class = "form-control col-md-2" })
-                @Html.ValidationMessageFor(model => model.SectionId, "", new { @class = "text-danger" })
+    <div class="form-group">
+        @Html.LabelFor(model => model.DeliveryInPerson, htmlAttributes: new { @class = "control-label col-md-2" })
+        <div class="col-md-6">
+            <div class="checkbox">
+                @Html.EditorFor(model => model.DeliveryInPerson)
+                @Html.ValidationMessageFor(model => model.DeliveryInPerson, "", new { @class = "text-danger" })
             </div>
         </div>
+    </div>
 
-        <div class="form-group">
-            @Html.LabelFor(model => model.CategoryId, htmlAttributes: new { @class = "control-label col-md-2" })
-            <div class="col-md-10">
-                @Html.DropDownListFor(model => model.CategoryId, ViewBag.Categories as SelectList, new { id = "category", @class = "form-control" })
-                @Html.ValidationMessageFor(model => model.CategoryId, "", new { @class = "text-danger" })
+    <div class="form-group">
+        @Html.LabelFor(model => model.ByPostToAnotherCountry, htmlAttributes: new { @class = "control-label col-md-2" })
+        <div class="col-md-6">
+            <div class="checkbox">
+                @Html.EditorFor(model => model.ByPostToAnotherCountry)
+                @Html.ValidationMessageFor(model => model.ByPostToAnotherCountry, "", new { @class = "text-danger" })
             </div>
         </div>
+    </div>
 
-        <div class="form-group">
-            @Html.LabelFor(model => model.MinimalPrice, htmlAttributes: new { @class = "control-label col-md-2" })
-            <div class="col-md-10">
-                @Html.EditorFor(model => model.MinimalPrice, new { htmlAttributes = new { @class = "form-control" } })
-                @Html.ValidationMessageFor(model => model.MinimalPrice, "", new { @class = "text-danger" })
+    <div class="form-group">
+        @Html.LabelFor(model => model.ReturnAfterBuyingIsForbidden, htmlAttributes: new { @class = "control-label col-md-2" })
+        <div class="col-md-6">
+            <div class="checkbox">
+                @Html.EditorFor(model => model.ReturnAfterBuyingIsForbidden)
+                @Html.ValidationMessageFor(model => model.ReturnAfterBuyingIsForbidden, "", new { @class = "text-danger" })
             </div>
         </div>
+    </div>
 
-        <div class="form-group">
-            @Html.LabelFor(model => model.MinimalStep, htmlAttributes: new { @class = "control-label col-md-2" })
-            <div class="col-md-10">
-                @Html.EditorFor(model => model.MinimalStep, new { htmlAttributes = new { @class = "form-control" } })
-                @Html.ValidationMessageFor(model => model.MinimalStep, "", new { @class = "text-danger" })
+    <div class="form-group">
+        @Html.LabelFor(model => model.Cash, htmlAttributes: new { @class = "control-label col-md-2" })
+        <div class="col-md-6">
+            <div class="checkbox">
+                @Html.EditorFor(model => model.Cash)
+                @Html.ValidationMessageFor(model => model.Cash, "", new { @class = "text-danger" })
             </div>
         </div>
+    </div>
 
-        <div class="form-group">
-            @Html.LabelFor(model => model.Description, htmlAttributes: new { @class = "control-label col-md-2" })
-            <div class="col-md-10">
-                @Html.TextAreaFor(model => model.Description, new { htmlAttributes = new { @class = "form-control col-md-2" } })
-                @Html.ValidationMessageFor(model => model.Description, "", new { @class = "text-danger" })
+    <div class="form-group">
+        @Html.LabelFor(model => model.NonCash, htmlAttributes: new { @class = "control-label col-md-2" })
+        <div class="col-md-6">
+            <div class="checkbox">
+                @Html.EditorFor(model => model.NonCash)
+                @Html.ValidationMessageFor(model => model.NonCash, "", new { @class = "text-danger" })
             </div>
         </div>
+    </div>
 
-        <div class="form-group">
-            @Html.LabelFor(model => model.DaysDuration, htmlAttributes: new { @class = "control-label col-md-2" })
-            <div class="col-md-10">
-                @Html.EditorFor(model => model.DaysDuration, new { htmlAttributes = new { @class = "form-control" } })
-                @Html.ValidationMessageFor(model => model.DaysDuration, "", new { @class = "text-danger" })
+    <div class="form-group">
+        @Html.LabelFor(model => model.FullPrepaymentPostSending, htmlAttributes: new { @class = "control-label col-md-2" })
+        <div class="col-md-6">
+            <div class="checkbox">
+                @Html.EditorFor(model => model.FullPrepaymentPostSending)
+                @Html.ValidationMessageFor(model => model.FullPrepaymentPostSending, "", new { @class = "text-danger" })
             </div>
         </div>
+    </div>
 
-        <div class="form-group">
-            @Html.LabelFor(model => model.Location, htmlAttributes: new { @class = "control-label col-md-2" })
-            <div class="col-md-10">
-                @Html.DropDownListFor(model => model.Location, ViewBag.Locations as List<SelectListItem>, new { @class = "form-control" })
-                @Html.ValidationMessageFor(model => model.Location, "", new { @class = "text-danger" })
-            </div>
+    <div class="form-group">
+        @Html.LabelFor(model => model.AdditionalInformation, htmlAttributes: new { @class = "control-label col-md-2" })
+        <div class="col-md-6">
+            @Html.TextAreaFor(model => model.AdditionalInformation, new { @placeholder = "Дополнительная информация о условиях и особенностях доставки (опционально)", @cols = "130", @rows = "5", htmlAttributes = new { @class = "form-control col-md-2" } })
+            @Html.ValidationMessageFor(model => model.AdditionalInformation, "", new { @class = "text-danger" })
         </div>
+    </div>
 
-        <div class="form-group">
-            @Html.LabelFor(model => model.ByPost, htmlAttributes: new { @class = "control-label col-md-2" })
-            <div class="col-md-10">
-                <div class="checkbox">
-                    @Html.EditorFor(model => model.ByPost)
-                    @Html.ValidationMessageFor(model => model.ByPost, "", new { @class = "text-danger" })
-                </div>
-            </div>
-        </div>
+    <h3 style="margin-left:10px;" class="modal-title">Фотографии лота</h3>
+    <section id="inputSection">
+        <figure></figure>
+        <p>Загрузка файлов</p>
+        <p><small>Перетащите ваши файлы в эту область!</small></p>
+        <input type="file" id="input" accept="image/x-png,image/jpeg">
+    </section>
+    <div class="progress">
+        <div class="progress-bar"></div>
+        <div class="progress-value">0 %</div>
+    </div>
+    <div class="error">
+    </div>
+    <div class="images">
+    </div>
 
-        <div class="form-group">
-            @Html.LabelFor(model => model.DeliveryInPerson, htmlAttributes: new { @class = "control-label col-md-2" })
-            <div class="col-md-10">
-                <div class="checkbox">
-                    @Html.EditorFor(model => model.DeliveryInPerson)
-                    @Html.ValidationMessageFor(model => model.DeliveryInPerson, "", new { @class = "text-danger" })
-                </div>
-            </div>
-        </div>
 
-        <div class="form-group">
-            @Html.LabelFor(model => model.ByPostToAnotherCountry, htmlAttributes: new { @class = "control-label col-md-2" })
-            <div class="col-md-10">
-                <div class="checkbox">
-                    @Html.EditorFor(model => model.ByPostToAnotherCountry)
-                    @Html.ValidationMessageFor(model => model.ByPostToAnotherCountry, "", new { @class = "text-danger" })
-                </div>
-            </div>
-        </div>
-
-        <div class="form-group">
-            @Html.LabelFor(model => model.ReturnAfterBuyingIsForbidden, htmlAttributes: new { @class = "control-label col-md-2" })
-            <div class="col-md-10">
-                <div class="checkbox">
-                    @Html.EditorFor(model => model.ReturnAfterBuyingIsForbidden)
-                    @Html.ValidationMessageFor(model => model.ReturnAfterBuyingIsForbidden, "", new { @class = "text-danger" })
-                </div>
-            </div>
-        </div>
-
-        <div class="form-group">
-            @Html.LabelFor(model => model.Cash, htmlAttributes: new { @class = "control-label col-md-2" })
-            <div class="col-md-10">
-                <div class="checkbox">
-                    @Html.EditorFor(model => model.Cash)
-                    @Html.ValidationMessageFor(model => model.Cash, "", new { @class = "text-danger" })
-                </div>
-            </div>
-        </div>
-
-        <div class="form-group">
-            @Html.LabelFor(model => model.NonCash, htmlAttributes: new { @class = "control-label col-md-2" })
-            <div class="col-md-10">
-                <div class="checkbox">
-                    @Html.EditorFor(model => model.NonCash)
-                    @Html.ValidationMessageFor(model => model.NonCash, "", new { @class = "text-danger" })
-                </div>
-            </div>
-        </div>
-
-        <div class="form-group">
-            @Html.LabelFor(model => model.FullPrepaymentPostSending, htmlAttributes: new { @class = "control-label col-md-2" })
-            <div class="col-md-10">
-                <div class="checkbox">
-                    @Html.EditorFor(model => model.FullPrepaymentPostSending)
-                    @Html.ValidationMessageFor(model => model.FullPrepaymentPostSending, "", new { @class = "text-danger" })
-                </div>
-            </div>
-        </div>
-
-        <div class="form-group">
-            @Html.LabelFor(model => model.AdditionalInformation, htmlAttributes: new { @class = "control-label col-md-2" })
-            <div class="col-md-10">
-                @Html.TextAreaFor(model => model.AdditionalInformation, new { htmlAttributes = new { @class = "form-control col-md-2" } })
-                @Html.ValidationMessageFor(model => model.AdditionalInformation, "", new { @class = "text-danger" })
-            </div>
-        </div>
-
-        <section id="inputSection">
-            <figure></figure>
-            <p>Загрузка файлов</p>
-            <p><small>Перетащите ваши файлы в эту область!</small></p>
-            <input type="file" id="input" accept="image/x-png,image/jpeg">
-        </section>
-        <div class="progress">
-            <div class="progress-bar"></div>
-            <div class="progress-value">0 %</div>
-        </div>
-        <div class="error">
-        </div>
-        <div class="images">
-        </div>
-
-        <div class="form-group">
-            <div class="col-md-10">
-                <input type="submit" value="Create" class="btn btn-default" />
-            </div>
+</div>
+    <div class="row">
+        <div class="form-group col-md-offset-6">
+            <input style="width:80px; height:50px;" type="submit" value="Create" class="btn btn-default" />
         </div>
     </div>
 }
 
 @section scripts{
     <script type="text/javascript">
+
         $(function () {
+            // Программное открытие окна выбора файла по щелчку
+            $('figure').on('click', function () {
+                $(':file').trigger('click');
+
+            })
+
+            // При перетаскивании файлов в форму, подсветить
+            $('section').on('dragover', function (e) {
+                $(this).addClass('dd');
+                e.preventDefault();
+                e.stopPropagation();
+            });
+
+            // Предотвратить действие по умолчанию для события dragenter
+            $('section').on('dragenter', function (e) {
+                e.preventDefault();
+                e.stopPropagation();
+            });
+
+            $('section').on('dragleave', function (e) {
+                $(this).removeClass('dd');
+            });
+
+            $('section').on('drop', function (e) {
+                if (e.originalEvent.dataTransfer) {
+                    if (e.originalEvent.dataTransfer.files.length) {
+                        e.preventDefault();
+                        e.stopPropagation();
+
+
+                        upload(e.originalEvent.dataTransfer.files);
+                    }
+                }
+            });
+
+            $(':file').on('change', function () {
+                upload($(this).prop('files'));
+
+            });
 
             $('#section').change(function () {
                 // получаем выбранный id
@@ -350,6 +392,112 @@
                     }
                 });
             });
-        })
+
+        });
+
+
+        function randomString(length) {
+            var chars = "0123456789ABCDEFGHIJKLMNOPQRSTUVWXTZabcdefghiklmnopqrstuvwxyz".split("");
+            if (!length) {
+                length = Math.floor(Math.random() * chars.length);
+            }
+            var str = "";
+            for (var i = 0; i < length; i++) {
+                str += chars[Math.floor(Math.random() * chars.length)];
+            }
+            return str;
+        }
+
+        function delClick(clicked_id) {
+
+            var parent = $("#" + clicked_id).parent()
+            var a_href = $(parent).find('a').attr('href');
+            console.log(a_href);
+            $.ajax({
+                url: '/Lot/ImageDelete',
+                method: 'POST',
+                data: { id: a_href },
+                success: function (data) {
+                    if (data == "ok") {
+                        $('.progress').hide();
+                        parent.empty();
+                        parent.remove();
+                    }
+                }
+            });
+            //alert(parent);
+            //console.log(ref);
+        }
+        // Функция загрузки файлов
+        function upload(files) {
+            // Создаем объект FormData
+            var formData = new FormData();
+
+            // Пройти в цикле по всем файлам
+            for (var i = 0; i < files.length; i++) {
+                // С помощью метода append() добавляем файлы в объект FormData
+                formData.append('file_' + i, files[i]);
+            }
+
+            // Ajax-запрос на сервер
+            $.ajax({
+                type: 'POST',
+                url: '/Lot/ImageUpload', // URL на метод действия Upload контроллера HomeController
+                data: formData,
+                processData: false,
+                contentType: false,
+                beforeSend: function () {
+                    $('section').removeClass('dd');
+
+                    // Перед загрузкой файла удалить старые ошибки и показать индикатор
+                    $('.error').text('').hide();
+                    $('.progress').show();
+
+                    // Установить прогресс-бар на 0
+                    $('.progress-bar').css('width', '0');
+                    $('.progress-value').text('0 %');
+                },
+                success: function (data) {
+                    if (data.Error) {
+                        console.log("fail");
+                        $('.error').text(data.Error).show();
+                        $('.progress').hide();
+                    }
+                    else {
+                        console.log("succ");
+
+                        $('.progress-bar').css('width', '100%');
+                        $('.progress-value').text('100 %');
+
+                        // Отобразить загруженные картинки
+                        if (data.Files) {
+                            // Обертка для картинки со ссылкой
+                            var id = randomString(6);
+                            var img = '<div><btn id="' + id + '"' + ' onclick="delClick(this.id)" style = "position: absolute; height: 16px; width: 16px; top: 0px; right: 0px; z-index: 10; background-image: url(https://png.icons8.com/small/16/000000/delete-sign.png)" ></btn > <a href="0123" target="_blank"><span style="background-image: url(0123)"></span></a></div > ';
+                            //var img = '<a href="0" target="_blank"><span style="background-image: url(0)"></span></a>';
+
+                            for (var i = 0; i < data.Files.length; i++) {
+                                // Сгенерировать вставляемый элемент с картинкой
+                                // (символ 0 заменяем ссылкой с помощью регулярного выражения)
+                                var element = $(img.replace(/0123/g, data.Files[i]));
+
+                                // Добавить в контейнер
+                                $('.images').append(element);
+                            }
+                        }
+                    }
+                },
+                xhrFields: { // Отслеживаем процесс загрузки файлов
+                    onprogress: function (e) {
+                        if (e.lengthComputable) {
+                            // Отображение процентов и длины прогресс бара
+                            var perc = e.loaded / 100 * e.total;
+                            $('.progress-bar').css('width', perc + '%');
+                            $('.progress-value').text(perc + ' %');
+                        }
+                    }
+                },
+            });
+        }
     </script>
 }

@@ -1,6 +1,10 @@
 ﻿@model SOOS_Auction.Models.LotDetails
 
 <span id="LotId" style="visibility:hidden;">@Model.LotId</span>
+<span id="LotState" style="visibility:hidden;">@Model.State</span>
+<span id="LotWinnerId" style="visibility:hidden;">@Model.WinnerId</span>
+<span id="LotWinnerName" style="visibility:hidden;">@Model.WinnerName</span>
+
 <div class="navbar navbar-default">
     <div class="container-fluid lotBar-contaner">
         <div class="navbar-collapse">
@@ -233,7 +237,7 @@
                 </div>
             </div>
             <!--/Slider-->
-            <div id="BidPanel" class="col-sm-3">
+            <div id="BidPanel" class="col-sm-4">
                 <p style="font-size:20px; color:#838383;"><strong id="CurrentPrice" style="font-size:30px; color:black;">@Model.CurrentPrice.ToString("F")</strong> бел. руб.</p>
                 <input style="float:right; margin-left:20px;" type="button" id="btnShowBids" class="btn btn-primary" value="Ставки" />
                 <div id="BidsModal" class="modal fade" role="dialog">
@@ -256,22 +260,30 @@
                     }
                     <div class="input-group-btn bidBtn">
 
-                        @if (HttpContext.Current.User.Identity.Name == Model.UserName)
+                        @if (HttpContext.Current.User.Identity.Name == Model.UserName || Model.State!="started")
                         {
-                            <button disabled class="btn btn-outline-secondary" onclick="sendBid()"><strong style="color:white" class="bidText">Сделать ставку</strong></button>
-
+                            <button disabled class="btn btn-outline-secondary" id="bidBtn" onclick="sendBid()"><strong style="color:white" class="bidText">Сделать ставку</strong></button>
                         }
                         else
                         {
-                            <button class="btn btn-outline-secondary" onclick="sendBid()"><strong style="color:white" class="bidText">Сделать ставку</strong></button>
+                            <button class="btn btn-outline-secondary" id="bidBtn" onclick="sendBid()"><strong style="color:white" class="bidText">Сделать ставку</strong></button>
                         }
                     </div>
                 </div>
+                <br />
+                <div id="lotStatus">
+                    <p id="preLotTimer" hidden  style="font-size:17px; color:black;">До конца торгов: <strong id="lotTimer"style="font-size:17px; color:black; " >0 д. 0 ч. 0 м. 0 с.</strong></p>
+                    <div id="winnerInfo">
+                        <strong style="font-size:20px; margin-right:10px;" id="winnerMessage"></strong>
+                        <a href="#" id="winnerReference" style="color:#080E9B; font-size:20px;"></a>
+                    </div>
+                </div>
                 <div id="ErrorContainer" style="float:left; margin-left:0;"></div>
+
             </div>
             <div id="userInfo" class="col-sm-2" style="border-left:1px solid #EEEEEE">
                 <div class="imgWrap">
-                    <img style="height:100px; width:100px;" src="https://drive.google.com/uc?export=view&id=1R65ppqtbBGs3CJMKRDL8Mb5cA1WpA1-y" alt="">
+                    <img style="height:100px; width:100px;" src="https://drive.google.com/uc?export=view&id=@Model.UserAvatarUrl" alt="">
                 </div>
                 <div style="margin-bottom:30px;" class="txtWrap">
                     <a href="#" style="color:#080E9B; font-size:25px;">@Model.UserName</a>
@@ -287,6 +299,7 @@
 
                 </div>
             </div>
+    </div>
     </div>
     <hr />
     <div style="margin-top:30px; margin-left:20px;">
@@ -345,14 +358,14 @@
     </div>
     @if (Model.PostPaymentAdditionalInformation != "")
     {
-    <div style="margin-top:30px; margin-left:20px;">
-        <h2>Дополнительная информация о доставке и оплате</h2>
-    </div>
-    <div style="margin-left:20px;" class="row lotDescription">
-        <div class="col-md-8">
-            <p style="font-size:20px;">@Model.PostPaymentAdditionalInformation</p>
+        <div style="margin-top:30px; margin-left:20px;">
+            <h2>Дополнительная информация о доставке и оплате</h2>
         </div>
-    </div>
+        <div style="margin-left:20px;" class="row lotDescription">
+            <div class="col-md-8">
+                <p style="font-size:20px;">@Model.PostPaymentAdditionalInformation</p>
+            </div>
+        </div>
     }
     @section scripts{
         <script src="~/Scripts/jquery.signalR-2.2.3.min.js"></script>
@@ -364,6 +377,8 @@
     $(document).ready(function () {
         $.connection.hub.start().done(function () {
             executeUpdate();
+            executeTimerUpdate();
+            $('#preLotTimer').show();
         });
     });
     window.addEventListener('load', function () {
@@ -381,7 +396,8 @@
 
     });
 
-    $(function () {
+        $(function () {
+
         var detailsHub = $.connection.lotDetailsHub;
 
 
@@ -400,7 +416,8 @@
                         if ($("#CurrentPrice").text() != price) { $("#CurrentPrice").text(price); }
                         var placeholder = data.newPlaceHolder;
                         if ($("#newBid").attr("placeholder") != placeholder) { $("#newBid").attr("placeholder", placeholder); }
-                    }
+                        $('#LotWinnerId').text(data.WinnerId);
+                        $('#LotWinnerName').text(data.WinnerName);                    }
                 }
             });
         }
@@ -408,10 +425,50 @@
 
         executeUpdate = function () {
             $.connection.hub.start().done(function () {
-
                 detailsHub.server.updateLotData($('#lotId').val());
             });
         }
+
+            var timerHub = $.connection.timerUpdateHub;
+        timerHub.client.updateTimer = function (id, span) {
+            console.log("update timer");
+            var lotId = $('#lotId').val();
+            if ($('#LotState').val() == "finished") { setFinishInfo(); }
+            else {
+                if (id == lotId) {
+                    var newTime =span;
+                    console.log(newTime);
+                    $('#lotTimer').text(newTime);
+
+                    setTimeout(executeTimerUpdate, 1000);
+                }
+            }
+            }
+            timerHub.client.finishLot = function (id) {
+                var lotId = $('#lotId').val();
+                if (id == lotId) {
+                    $.ajax({
+                        type: "POST",
+                        data: { lotId: id },
+                        url: '@Url.Action("FinishLot", "Lot", new { lotId = "lotId" })',
+                        success: function (responseStatus) {
+                            console.log(responseStatus);
+                            if (responseStatus == "ok"||responseStatus=="finished") {
+                                $('#LotState').val("finished");
+                                setFinishInfo();
+                            }
+                        }
+                    });
+                }
+            }
+
+        executeTimerUpdate = function () {
+            $.connection.hub.start().done(function () {
+
+                timerHub.server.timeUpdate($('#lotId').val());
+            });
+        }
+
 
         $('#myCarousel').carousel({
             interval: 5000
@@ -427,8 +484,8 @@
                 console.log('Regex failed!', e);
             }
         })
-        // When the carousel slides, auto update the text
-        $('#myCarousel').on('slid.bs.carousel', function (e) {
+
+            $('#myCarousel').on('slid.bs.carousel', function (e) {
             var id = $('.item.active').data('slide-number');
             $('#carousel-text').html($('#slide-content-' + id).html());
         });
@@ -441,7 +498,6 @@
                     url: '/Lot/GetBids?id=' + id,
                     success: function (data) {
 
-                        // заменяем содержимое присланным частичным представлением
                         $('#modalContent').html(data);
                     }
                 });
@@ -465,6 +521,7 @@
                     parentDiv.empty();
                     parentDiv.remove();
                     updateBids('btnRefreshBids');
+
                     executeUpdate();
                 }
             }
@@ -492,17 +549,48 @@
             success: function (data) {
                 $("#ErrorContainer").empty();
                 if (data.isSuccess) {
+
+
                     $('#newBid').val("");
+                    $('#LotWinnerId').text(data.WinnerId);
+                    $('#LotWinnerName').text(data.WinnerName);
                     executeUpdate();
                 }
                 else {
-                    var error = '<br/><span style="float:left;font-size:15px; color:red;">' + data.bidErrors[0] + '</span>';
+                    var error = '<br/><span style="float:left;font-size:18px; color:red;">' + data.bidErrors[0] + '</span>';
                     $('#ErrorContainer').append(error);
                 }
             }
         });
     }
+        function setFinishInfo() {
+            if ($('#LotState').val() == "finished") {
+                $('#preLotTimer').show();
+                $('#preLotTimer').text("Торги завершены!");
+               // $('#lotTimer').text("Торги завершены!");
+                $('#winnerMessage').text("Победитель торгов: ");
+                //attr ref must be here
+                $('#winnerReference').text($('#LotWinnerName').text());
+                $("#bidBtn").prop("disabled", true);
+                $("#newBid").prop("disabled", true);
 
+            }
+        }
+
+        function updateWinnerInfo() {
+            var lot = $("#lotId").val();
+            $.ajax({
+                type: "GET",
+                data: { lotId: lot },
+                url: '@Url.Action("GetWinnerInfo","Lot", new { lotId = "lotId"})',
+                success: function (data) {
+                    if (data.isSuccess) {
+                        $('#LotWinnerId').text(data.WinnerId);
+                        $('#LotWinnerName').text(data.WinnerName);
+                    }
+                }
+            });
+        }
 
     </script>
 

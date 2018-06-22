@@ -8,7 +8,6 @@ namespace SOOS_Auction.Hubs
 {
     public class LotDetailsHub : Hub
     {
-        // Отправка сообщений
         public void UpdateLotData(int id)
         {
             Clients.All.updateLotData(id);

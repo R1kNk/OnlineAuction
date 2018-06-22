@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Linq;
+using System.Net;
 using System.Threading.Tasks;
 using System.Web;
 using System.Web.Mvc;
@@ -64,13 +65,22 @@ namespace SOOS_Auction.Controllers
                 : "";
 
             var userId = User.Identity.GetUserId();
+            ApplicationUser currentUser = UserManager.Users.Where(p => p.Id == userId).SingleOrDefault();
+            if (currentUser == null) return new HttpStatusCodeResult(HttpStatusCode.NotFound);
             var model = new IndexViewModel
             {
                 HasPassword = HasPassword(),
                 PhoneNumber = await UserManager.GetPhoneNumberAsync(userId),
                 TwoFactor = await UserManager.GetTwoFactorEnabledAsync(userId),
                 Logins = await UserManager.GetLoginsAsync(userId),
-                BrowserRemembered = await AuthenticationManager.TwoFactorBrowserRememberedAsync(userId)
+                BrowserRemembered = await AuthenticationManager.TwoFactorBrowserRememberedAsync(userId),
+                UserName = currentUser.UserName,
+                Gender = currentUser.Gender,
+                AvatarUrl = currentUser.AvatarUrl,
+                UserLocation = currentUser.UserLocation,
+                TelephoneNumber = currentUser.TelephoneNumber,
+                PositiveReview=currentUser.PositiveReview,
+               NegativeReview = currentUser.NegativeReview
             };
             return View(model);
         }

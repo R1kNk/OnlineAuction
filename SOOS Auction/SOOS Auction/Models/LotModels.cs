@@ -168,6 +168,7 @@ namespace SOOS_Auction.Models
         public int UserPositiveReviews { get; set; }
         public int UserNegativeReviews { get; set; }
         public string UserLocation { get; set; }
+        public string UserAvatarUrl { get; set; }
 
         public string WinnerId { get; set; } //ok
 
@@ -187,17 +188,25 @@ namespace SOOS_Auction.Models
         public string UserName { get; set; }
         public string LotOwnerUserName { get; set; }
         public string CurrentUserName { get; set; }
+        public string LotState { get; set; }
 
     }
 
-    public class LotData
+    public class LotData:WinnerInfo
     {
-        public bool isSuccess { get; set; }
         public string newLotPrice { get; set; }
         public string newPlaceHolder { get; set; }
     }
 
-    public class NewBidResult
+    public class WinnerInfo
+    {
+        public string WinnerId { get; set; }
+        public string WinnerName { get; set; }
+        public bool isSuccess { get; set; }
+
+
+    }
+    public class NewBidResult : WinnerInfo
     {
         public NewBidResult()
         {
@@ -205,6 +214,7 @@ namespace SOOS_Auction.Models
         }
 
         public List<string> bidErrors { get; set; }
-        public bool isSuccess { get; set; }
+ 
     }
+
 }

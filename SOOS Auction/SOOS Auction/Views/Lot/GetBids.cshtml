@@ -4,7 +4,7 @@
         <h2>Ставки</h2> <br />
          <ul style=" list-style-type: none; margin: 0;padding: 0;">
             <li style="float:right;">
-                <input style="float:right; color:white;" type="button" id="btnRefreshBids" onclick="updateLots()" class="btn" value="Обновить" />
+                <input style="float:right; color:white;" type="button" id="btnRefreshBids" onclick="updateBids()" class="btn" value="Обновить" />
             </li>
             <li style="float:left;">
                 <strong>Сделано @Model.Count ставок(и)</strong><br />
@@ -23,24 +23,24 @@
             <div class="col-md-3">
                 <span style="font-size:15px">@item.bid.Price.ToString("F") бел. руб.</span>
             </div>
-            @if (item.LotOwnerUserName == item.CurrentUserName)
-            {
-                <div class="col-md-5">
-                    <span style="font-size:15px; text-align:center;">@item.bid.BidDate.ToString("F")</span>
-                </div>
-                <div class="col-md-1">
-                    <button class="bidButton close" id="@item.bid.BidId" onclick="delBid(this.id)" type="button">&times</button>
-                </div>
-            }
-            else
-            {
-                <div class="col-md-5 col-md-offset-1">
-                    <span style="font-size:15px; text-align:center;">@item.bid.BidDate.ToString("F")</span>
-                </div>
-            }
-        </div>
+                @if (item.LotOwnerUserName == item.CurrentUserName && item.LotState=="started")
+                {
+                    <div class="col-md-5">
+                        <span style="font-size:15px; text-align:center;">@item.bid.BidDate.ToString("F")</span>
+                    </div>
+                    <div class="col-md-1">
+                        <button class="bidButton close" id="@item.bid.BidId" onclick="delBid(this.id)" type="button">&times</button>
+                    </div>
                 }
+                else
+                {
+                    <div class="col-md-5 col-md-offset-1">
+                        <span style="font-size:15px; text-align:center;">@item.bid.BidDate.ToString("F")</span>
+                    </div>
+                }
+        </div>
             }
+         }
 
 
     </div>
