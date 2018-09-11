@@ -12,7 +12,7 @@ namespace SOOS_Auction.Migrations
                 c => new
                     {
                         BidId = c.Int(nullable: false, identity: true),
-                        User = c.Int(nullable: false),
+                        User = c.String(nullable: false),
                         Price = c.Double(nullable: false),
                         BidDate = c.DateTime(nullable: false),
                         LotId = c.Int(nullable: false),
@@ -29,6 +29,7 @@ namespace SOOS_Auction.Migrations
                         Name = c.String(nullable: false, maxLength: 200),
                         State = c.String(nullable: false),
                         UserId = c.String(nullable: false),
+                        Location = c.String(nullable: false),
                         WinnerId = c.String(),
                         MinimalPrice = c.Double(nullable: false),
                         CurrentPrice = c.Double(nullable: false),
@@ -39,6 +40,7 @@ namespace SOOS_Auction.Migrations
                         FinishDate = c.DateTime(nullable: false),
                         CategoryId = c.Int(nullable: false),
                         ImagesUrl = c.String(),
+                        isPaymentBySite = c.Boolean(nullable: false),
                     })
                 .PrimaryKey(t => t.LotId)
                 .ForeignKey("dbo.Categories", t => t.CategoryId, cascadeDelete: true)
@@ -76,7 +78,6 @@ namespace SOOS_Auction.Migrations
                         Cash = c.Boolean(nullable: false),
                         NonCash = c.Boolean(nullable: false),
                         FullPrepaymentPostSending = c.Boolean(nullable: false),
-                        AdditionalInformation = c.String(),
                     })
                 .PrimaryKey(t => t.LotPaymentId);
             
@@ -90,8 +91,25 @@ namespace SOOS_Auction.Migrations
                         DeliveryInPerson = c.Boolean(nullable: false),
                         ByPostToAnotherCountry = c.Boolean(nullable: false),
                         ReturnAfterBuyingIsForbidden = c.Boolean(nullable: false),
+                        AdditionalInformation = c.String(),
                     })
                 .PrimaryKey(t => t.LotReceivingId);
+            
+            CreateTable(
+                "dbo.UserReviews",
+                c => new
+                    {
+                        UserReviewId = c.Int(nullable: false, identity: true),
+                        UserId = c.String(),
+                        UserIdFrom = c.String(),
+                        Text = c.String(),
+                        Review = c.String(),
+                        isPositive = c.Boolean(nullable: false),
+                        isNegative = c.Boolean(nullable: false),
+                        date = c.DateTime(nullable: false),
+                        State = c.String(),
+                    })
+                .PrimaryKey(t => t.UserReviewId);
             
         }
         
@@ -106,6 +124,7 @@ namespace SOOS_Auction.Migrations
             DropIndex("dbo.Lots", new[] { "CategoryId" });
             DropIndex("dbo.Lots", new[] { "LotId" });
             DropIndex("dbo.Bids", new[] { "LotId" });
+            DropTable("dbo.UserReviews");
             DropTable("dbo.LotReceivings");
             DropTable("dbo.LotPayments");
             DropTable("dbo.Sections");

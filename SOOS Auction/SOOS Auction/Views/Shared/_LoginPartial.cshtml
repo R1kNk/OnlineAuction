@@ -1,29 +1,47 @@
 ﻿@using Microsoft.AspNet.Identity
+
 @if (Request.IsAuthenticated)
 {
     using (Html.BeginForm("LogOff", "Account", FormMethod.Post, new { id = "logoutForm", @class = "navbar-right" }))
     {
-    @Html.AntiForgeryToken()
+        @Html.AntiForgeryToken()
 
-<ul class="nav navbar-nav navbar-right" style="margin-right:5px;">
-    <li>
-        @Html.ActionLink(User.Identity.GetUserName(), "Index", "Manage", routeValues: null, htmlAttributes: new { title = "Manage" })
-    </li>
-        @if (User.IsInRole("admin") || User.IsInRole("moder"))
-        {
-            <li class="dropdown">
-          <a href="#" class="dropdown-toggle" data-toggle="dropdown">Меню управления<b class="caret"></b></a>
-          <ul class="dropdown-menu">
-            <li><a href="@Url.Action("Users","AuctionManager")">Пользователи</a></li>
-            <li><a href="@Url.Action("Lots","AuctionManager")">Лоты</a></li>
-          </ul>
-        </li>
-            @*<li>
-                    @Html.ActionLink("Меню управления", "Index", "AuctionManager", routeValues: null, htmlAttributes: new { title = "Меню  управления" })
-                </li>*@
-        }
-    <li><a href="javascript:document.getElementById('logoutForm').submit()">Выйти</a></li>
-</ul>
+        <ul class="nav navbar-nav navbar-right" style="margin-right:5px;">
+            <li>
+                @Html.ActionLink(User.Identity.GetUserName(), "Index", "Manage", routeValues: null, htmlAttributes: new { title = "Manage" })
+            </li>
+            @if (User.IsInRole("admin") || User.IsInRole("moder"))
+            {
+                <li class="dropdown">
+                    <a href="#" class="dropdown-toggle" data-toggle="dropdown">Меню управления<b class="caret"></b></a>
+                    <ul class="dropdown-menu">
+                        <li><a href="@Url.Action("Users", "AuctionManager")">Пользователи</a></li>
+                        <li><a href="@Url.Action("Lots", "AuctionManager", new { lotsType = "all" })">Лоты</a></li>
+                        <li><a href="@Url.Action("Reviews", "AuctionManager", new { reviewsType = "all" })">Отзывы</a></li>
+                    </ul>
+                </li>
+                @*<li>
+                        @Html.ActionLink("Меню управления", "Index", "AuctionManager", routeValues: null, htmlAttributes: new { title = "Меню  управления" })
+                    </li>*@
+            }
+            <li>
+               <a href="@Url.Action("Create", "Lot")">Создать новый лот</a>     
+            </li>
+            @{
+                var claimsIdentity = User.Identity as System.Security.Claims.ClaimsIdentity;
+
+                if (claimsIdentity != null)
+                {
+                    var c = claimsIdentity.FindFirst("UnBusyBalance");
+                    if (c != null)
+                    {
+                        <li><a id="balance" href="@Url.Action("Index","Manage")">Свободный баланс: @c.Value.ToString() бел. руб.</a></li>
+                    }
+                }
+
+            }
+            <li><a href="javascript:document.getElementById('logoutForm').submit()">Выйти</a></li>
+        </ul>
     }
 }
 else
@@ -33,3 +51,9 @@ else
         <li>@Html.ActionLink("Войти", "Login", "Account", routeValues: null, htmlAttributes: new { id = "loginLink" })</li>
     </ul>
 }
+
+<script>
+    $(document).load(function () {
+        updateBalance();
+    })
+</script>

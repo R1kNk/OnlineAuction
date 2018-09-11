@@ -1,55 +1,61 @@
 ﻿@model IEnumerable<SOOS_Auction.Models.ApplicationUser>
-
-<h1 class="modal-title">
-    Список пользователей
-</h1>
-<table class="table">
-    <tr>
-        <th>
-            @Html.DisplayNameFor(model => model.Email)
-        </th>
-        <th>
-            @Html.DisplayNameFor(model => model.UserName)
-        </th>
-        <th>
-            @Html.DisplayNameFor(model => model.Gender)
-        </th>
-        <th>
-            @Html.DisplayNameFor(model => model.TelephoneNumber)
-        </th>
-        <th></th>
-    </tr>
-
-@foreach (var item in Model) {
-    <tr>
-        <td>
-            @Html.DisplayFor(modelItem => item.Email)
-        </td>
- 
-        <td>
-            @Html.DisplayFor(modelItem => item.UserName)
-        </td>
-        <td>
-            @Html.DisplayFor(modelItem => item.Gender)
-        </td>
-        <td>
-            @Html.DisplayFor(modelItem => item.TelephoneNumber)
-        </td>
-        @if (User.IsInRole("admin"))
-        {
-        <td>
-            @Html.ActionLink("Подробнее о пользователе", "UserDetails", new { mail = item.Email }) |
-            @Html.ActionLink("Изменить", "UserEdit", new { mail = item.Email }) |
-            @Html.ActionLink("Удалить", "UserDelete", new { mail = item.Email })
-        </td>
-        }
-        else
-        {
-        <td>
-            @Html.ActionLink("UserDetails", "UserDetails", new { mail = item.Email })
-        </td>
-        }
-    </tr>
+@{
+    ViewBag.Title = "Пользователи";
 }
+<div style="margin-left:10px;">
+    <h1 class="modal-title">
+        Список пользователей
+    </h1>
+    <table class="table">
+        <tr>
+            <th>
+                @Html.DisplayNameFor(model => model.Email)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.UserName)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.Gender)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.TelephoneNumber)
+            </th>
+            <th></th>
+        </tr>
 
-</table>
+        @foreach (var item in Model)
+        {
+            <tr>
+                <td>
+                    @Html.DisplayFor(modelItem => item.Email)
+                </td>
+
+                <td>
+                    <a href="@Url.Action("ViewProfile","Account", new {userId=item.Id})" style="color:#080E9B; font-size:15px;">@item.UserName</a>
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.Gender)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.TelephoneNumber)
+                </td>
+                @if (User.IsInRole("admin"))
+                {
+                    <td>
+                        <a href="@Url.Action("ViewProfile","Account", new {userId=item.Id})" style="color:#080E9B; font-size:15px;">Подробнее</a> |
+                        @Html.ActionLink("Изменить", "UserEdit", new { userId = item.Id }) |
+                        @Html.ActionLink("Удалить", "UserDelete", new { userId = item.Id })
+                    </td>
+                }
+                else
+                {
+                    <td>
+                        <a href="@Url.Action("ViewProfile","Account", new {userId=item.Id})" style="color:#080E9B; font-size:15px;">Подробнее</a>
+
+                    </td>
+                }
+            </tr>
+        }
+
+    </table>
+</div>

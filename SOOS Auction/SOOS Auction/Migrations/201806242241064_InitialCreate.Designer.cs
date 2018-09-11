@@ -13,7 +13,7 @@ namespace SOOS_Auction.Migrations
         
         string IMigrationMetadata.Id
         {
-            get { return "201806191624186_InitialCreate"; }
+            get { return "201806242241064_InitialCreate"; }
         }
         
         string IMigrationMetadata.Source

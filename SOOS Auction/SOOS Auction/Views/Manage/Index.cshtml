@@ -1,69 +1,447 @@
 ﻿@model SOOS_Auction.Models.IndexViewModel
-
+@{ 
+    ViewBag.Title = "Личный кабинет";
+}
 <p class="text-success">@ViewBag.StatusMessage</p>
+<p hidden id="userId">@Model.UserId</p>
 <div>
     <h2 style="margin-left:10px;">Личный кабинет</h2>
     <hr />
     <div class="row">
         <div class="col-md-2" style="margin-left:10px;">
-            <div style=" margin: 0px 8px 0px 0px;float: left;">
-            <img style="width:300px; height:300px;" src="https://drive.google.com/uc?export=view&id=@Model.AvatarUrl" alt="">
-              </div>
+            <section id="inputSection">
+                <figure>
+                    <img id="Avatar" style="max-width:100%; max-height:100%;" src="https://drive.google.com/uc?export=view&id=@Model.AvatarUrl" alt="">
+                </figure>
+                <input hidden type="file" id="input" accept="image/x-png,image/jpeg">
+            </section>
+            <a style="width:100%; margin-top:20px; margin-bottom:20px;" href="@Url.Action("ChangePassword")" class="btn btn-primary" role="button">Сменить пароль</a>
+            <div class="btn-group" style="width:100%; margin-bottom:20px;">
+                <button id="userLots" type="button" class="btn btn-info" style="float:left; width:80%;">Лоты</button>
+                <button type="button" class="btn btn-info dropdown-toggle" style="float:left; width:20%;" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                    <span class="caret"></span>
+                    <span class="sr-only">Toggle Dropdown</span>
+                </button>
+                <ul class="dropdown-menu" style="width:100%;">
+                    <li><a id="userStartedLots" href="#">Действующие лоты</a></li>
+                    <li><a id="userFinishedLots" href="#">Завершенные лоты</a></li>
+                    <li><a id="userPendingLots" href="#">Ожидающие подтверждения лоты</a></li>
+                    <li role="separator" class="divider"></li>
+                    <li><a id="userParticipatingLots" href="#">Лоты, в которых я учавствую</a></li>
+                    <li><a id="userWonLots" href="#">Лоты, в которых я выиграл</a></li>
+
+                </ul>
+            </div>
+            <div class="btn-group" style="width:100%;">
+                <button id="Reviews" type="button" class="btn btn-danger" style="float:left; width:80%;">Отзывы</button>
+                <button type="button" class="btn btn-danger dropdown-toggle" style="float:left; width:20%;" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                    <span class="caret"></span>
+                    <span class="sr-only">Toggle Dropdown</span>
+                </button>
+                <ul class="dropdown-menu" style="width:100%;">
+                    <li><a id="positiveReviews" href="#">Положительные отзывы</a></li>
+                    <li><a id="negativeReviews" href="#">Отрицательные отзывы</a></li>
+
+                </ul>
+            </div>
         </div>
-        <div  " class="col-md-2">
-            <p>@Model.UserName</p>
+        <div style="margin-left:10px;" class="col-md-2">
+            <strong style="font-size:30px;">@Model.UserName</strong>
+            <br />
+            <img src="https://drive.google.com/uc?export=view&id=11iP5j2VBCGsXQy9TboST4opI48f3x5m3"><strong style="font-size:20px;">@Model.PositiveReview</strong>
+            <img style="margin-left:5px;" src="https://drive.google.com/uc?export=view&id=1YkD8vwNgpMfAsenQYcTDwS7VKJArmzrf"><strong style="font-size:20px;">@Model.NegativeReview</strong>
+            <br />
+            <br />
+            @{
+                double perc = (Model.PositiveReview + Model.NegativeReview) / Model.PositiveReview * 100; ;
+            }
+            <p style="font-size:17px; margin-bottom:20px;">@perc.ToString()%  положительных отзывов</p>
+            <p style="font-size:17px;">Пол: @Model.Gender</p>
+            <p style="font-size:17px;">@Model.UserLocation</p>
+
+        </div>
+        <div style="margin-left:10px;" class="col-md-3">
+            <p><strong style="font-size:20px; margin-bottom:40px">Контактные данные:</strong></p>
+
+            <p style="font-size:17px; margin-bottom:20px;">Телефон: <strong style="font-size:19px;">@Model.TelephoneNumber</strong></p>
+            <p style="font-size:17px; margin-bottom:20px;">Электронная почта: <strong style="font-size:19px;">@Model.Email</strong></p>
+
+
+        </div>
+        <div style="margin-left:10px;" class="col-md-3">
+            <p><strong style="font-size:20px; margin-bottom:40px">Баланс сайта:</strong></p>
+
+            <p style="font-size:17px; margin-bottom:20px;">Весь баланс: <strong id="Balance" style="font-size:19px;">@Model.Balance</strong></p>
+            <p style="font-size:17px; margin-bottom:20px;">Занятый баланс: <strong id="busyBalance" style="font-size:19px;">@Model.BusyBalance</strong></p>
+            <p style="font-size:17px; margin-bottom:20px;">Свободный баланс: <strong id="freeBalance" style="font-size:19px;">@Model.FreeBalance</strong></p>
+            <a id="addBalance" ; style="margin-top:20px;" class="btn btn-info" role="button">Пополнить баланс</a>
+            <div id="BalanceModal" class="modal fade" role="dialog">
+                <div class="modal-dialog">
+                    <!-- Modal content-->
+
+                    <div id="modalContent" class="modal-content">
+                        <div style="margin-left:20px;  margin-right:20px;">
+                            <strong style="font-size:20px; margin-top:20px;">Пополнить баланс:</strong>
+                            <hr style="margin-left:-20px;" />
+                            <p>Введите величину пополнения:</p>
+                            <div style="margin-bottom:20px;" class="input-group">
+                                <input type="text" name="newBalance" id="addedBalance" style="font-size:25px;" class="form-control" aria-label="" aria-describedby="basic-addon2">
+                                <div class="input-group-btn" style="background-color: #3A7999;">
+
+                                    <button style="float:left;" class="btn btn-info" id="bidBtn" onclick="sendBalance()"><strong style="color:white" class="bidText">Пополнить</strong></button>
+                                </div>
+                            </div>
+                            <div id="ErrorContainer" style="float:left; margin-left:0;"></div>
+                        </div>
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-danger" data-dismiss="modal"><span style="color:white;">Закрыть</span></button>
+                        </div>
+                    </div>
+                   
+                </div>
+
+                </div>
+            </div>
+
         </div>
     </div>
+    <hr />
+    <div id="content-panel" style="margin-top:10px;" class="row">
 
-    
-    @*
-        Phone Numbers can used as a second factor of verification in a two-factor authentication system.
+    </div>
+    <style>
+        [type="file"] {
+            position: absolute;
+            top: -16rem;
+            opacity: 0;
+        }
+    </style>
+    <script>
+        $(function () {
 
-         See <a href="https://go.microsoft.com/fwlink/?LinkId=403804">this article</a>
-            for details on setting up this ASP.NET application to support two-factor authentication using SMS.
+            $("#addBalance").click(function () {
+                $('#BalanceModal').modal('show');
+            });
 
-         Uncomment the following block after you have set up two-factor authentication
-    *@
-    @*
-        <dt>Phone Number:</dt>
-        <dd>
-            @(Model.PhoneNumber ?? "None")
-            @if (Model.PhoneNumber != null)
+        });
+
+        function sendBalance() {
+                        var userId = $('#userId').val();
+                            var addBalance = $('#addedBalance').val();
+                            $.ajax({
+                                type: 'POST',
+                                data: { userId: userId, addBalance: addBalance},
+                                url: '@Url.Action("AddBalance", "Account" ,new { userId = "userId", addBalance = "addBalance" })',
+                                success: function (data) {
+                                    $("#ErrorContainer").empty();
+                                    if (data.isSuccess) {
+                                        $('#Balance').text(data.Balance);
+                                        $('#busyBalance').text(data.BusyBalance);
+                                        $('#freeBalance').text(data.FreeBalance);
+                                        updateBalance();
+                                        $('#BalanceModal').modal('hide');
+                                    }
+                                    else {
+                                        var error = '<br/><span style="float:left;font-size:18px; color:red;">' + data.Error + '</span>';
+                                        $('#ErrorContainer').append(error);
+                                    }
+                                }
+                            });
+        }
+
+        $('#Reviews').click(function () {
+            $('#content-panel').empty();
+            var userId = $('#userId').text();
+            $.ajax({
+                type: 'GET',
+                data: { userId: userId },
+                url: '@Url.Action("ManageGetReviews","Manage", new {state= "all", userId="userId" })',
+                success: function (data) {
+                    $('#content-panel').empty();
+                    $('#content-panel').html(data);
+                }
+            })
+        })
+
+        $('#positiveReviews').click(function () {
+            $('#content-panel').empty();
+            var userId = $('#userId').text();
+            $.ajax({
+                type: 'GET',
+                data: { userId: userId },
+                url: '@Url.Action("ManageGetReviews","Manage", new {state= "positive", userId="userId" })',
+                success: function (data) {
+                    $('#content-panel').empty();
+                    $('#content-panel').html(data);
+                }
+            })
+        })
+
+        $('#negativeReviews').click(function () {
+            $('#content-panel').empty();
+            var userId = $('#userId').text();
+            $.ajax({
+                type: 'GET',
+                data: { userId: userId },
+                url: '@Url.Action("ManageGetReviews","Manage", new {state= "negative", userId="userId" })',
+                success: function (data) {
+                    $('#content-panel').empty();
+                    $('#content-panel').html(data);
+                }
+            })
+        })
+
+        $('#userStartedLots').click(function () {
+            $('#content-panel').empty();
+            var userId = $('#userId').text();
+            console.log(userId);
+            var state = 'userStarted';
+            console.log(userId);
+            $.ajax({
+                type: 'GET',
+                data: { userId: userId, state: state },
+                url: '@Url.Action("ManageGetLots","Lot", new {state= "userStarted", userId="userId" })',
+                success: function (data) {
+                    $('#content-panel').empty();
+                    $('#content-panel').html(data);
+                }
+            })
+        })
+
+        $('#userFinishedLots').click(function () {
+            $('#content-panel').empty();
+
+            var userId = $('#userId').text();
+            var state = 'e';
+            console.log(userId);
+            console.log(userId);
+            $.ajax({
+                type: 'GET',
+                data: { userId: userId, state: state },
+                url: '@Url.Action("ManageGetLots","Lot", new {state= "userFinished", userId="userId" })',
+                success: function (data) {
+                    $('#content-panel').empty();
+                    $('#content-panel').html(data);
+                }
+            })
+        })
+
+        $('#userPendingLots').click(function () {
+            $('#content-panel').empty();
+            var userId = $('#userId').text();
+            var state = 'e';
+            console.log(userId);
+            console.log(userId);
+            $.ajax({
+                type: 'GET',
+                data: { userId: userId, state: state },
+                url: '@Url.Action("ManageGetLots","Lot", new {state= "userPending", userId="userId" })',
+                success: function (data) {
+                    $('#content-panel').empty();
+                    $('#content-panel').html(data);
+                }
+            })
+        })
+
+        $('#userParticipatingLots').click(function () {
+            $('#content-panel').empty();
+            var userId = $('#userId').text();
+            var state = 'e';
+            console.log(userId);
+            console.log(userId);
+            $.ajax({
+                type: 'GET',
+                data: { userId: userId, state: state },
+                url: '@Url.Action("ManageGetLots","Lot", new {state= "userParticipating", userId="userId" })',
+                success: function (data) {
+                    $('#content-panel').empty();
+                    $('#content-panel').html(data);
+                }
+            })
+        })
+
+        $('#userWonLots').click(function () {
+            $('#content-panel').empty();
+            var userId = $('#userId').text();
+            var state = 'e';
+            console.log(userId);
+            console.log(userId);
+            $.ajax({
+                type: 'GET',
+                data: { userId: userId, state: state },
+                url: '@Url.Action("ManageGetLots","Lot", new {state= "userWon", userId="userId" })',
+                success: function (data) {
+                    $('#content-panel').empty();
+                    $('#content-panel').html(data);
+                }
+            })
+        })
+
+        $('#userLots').click(function () {
+            $('#content-panel').empty();
+            var userId = $('#userId').text();
+            var state = 'e';
+            console.log(userId);
+            console.log(userId);
+            $.ajax({
+                type: 'GET',
+                data: { userId: userId, state: state },
+                url: '@Url.Action("ManageGetLots","Lot", new {state= "user", userId="userId" })',
+                success: function (data) {
+                    $('#content-panel').empty();
+                    $('#content-panel').html(data);
+                }
+            })
+        })
+
+        getLots = function(userId, state) {
+             $.ajax({
+                type: 'GET',
+                data: { userId: userId, state: state },
+                url: '@Url.Action("ManageGetLots","Lot", new {userId="userId", state="state" })',
+                success: function (data) {
+                    $('content-panel').empty();
+                    $('content-panel').html(data);
+                }
+            })
+        }
+
+        $('figure').on('click', function () {
+            $(':file').trigger('click');
+
+        })
+
+        // При перетаскивании файлов в форму, подсветить
+        $('section').on('dragover', function (e) {
+            $(this).addClass('dd');
+            e.preventDefault();
+            e.stopPropagation();
+        });
+
+        // Предотвратить действие по умолчанию для события dragenter
+        $('section').on('dragenter', function (e) {
+            e.preventDefault();
+            e.stopPropagation();
+        });
+
+        $('section').on('dragleave', function (e) {
+            $(this).removeClass('dd');
+        });
+
+        $('section').on('drop', function (e) {
+            if (e.originalEvent.dataTransfer) {
+                if (e.originalEvent.dataTransfer.files.length) {
+                    e.preventDefault();
+                    e.stopPropagation();
+
+
+                    upload(e.originalEvent.dataTransfer.files);
+                }
+            }
+        });
+
+        $(':file').on('change', function () {
+            upload($(this).prop('files'));
+
+        });
+
+
+        function upload(files) {
+            // Создаем объект FormData
+            var formData = new FormData();
+
+            // Пройти в цикле по всем файлам
+            for (var i = 0; i < files.length; i++) {
+                // С помощью метода append() добавляем файлы в объект FormData
+                formData.append('file_' + i, files[i]);
+            }
+
+            // Ajax-запрос на сервер
+            $.ajax({
+                type: 'POST',
+                url: '/Account/UploadAvatar', // URL на метод действия Upload контроллера HomeController
+                data: formData,
+                processData: false,
+                contentType: false,
+                success: function (data) {
+                        console.log("succ");
+                        // Отобразить загруженные картинки
+                    if (data.IsSuccess == true) {
+                            var Imageurl = data.AvatarUrl;
+                        console.log(Imageurl);
+                        $('#Avatar').attr('src', 'https://drive.google.com/uc?export=view&id=' + Imageurl);
+                        }
+                    
+                },
+                xhrFields: { // Отслеживаем процесс загрузки файлов
+                    onprogress: function (e) {
+                        if (e.lengthComputable) {
+                            // Отображение процентов и длины прогресс бара
+                            var perc = e.loaded / 100 * e.total;
+                            $('.progress-bar').css('width', perc + '%');
+                            $('.progress-value').text(perc + ' %');
+                        }
+                    }
+                },
+            });
+        }
+    </script>
+        @*
+            <ul style="list-style-type:none; margin:0 0 10px 0; padding:0 0 0 0;">
+                    <li>
+                        <a href="@Url.Action("Lots", new { lotsType = "all" })" class="btn btn-info" role="button">Действующие лоты</a>
+                        <a href="@Url.Action("Lots", new { lotsType = "pending" })" class="btn btn-info" role="button">Завершенные лоты</a>
+                        <a href="@Url.Action("Lots", new { lotsType = "started" })" class="btn btn-info" role="button">Ожидающие подтверждения лоты</a>
+                        <a href="@Url.Action("Lots", new { lotsType = "finished" })" class="btn btn-info" role="button">Лоты, в которых я учавствую</a>
+                        <a href="@Url.Action("Lots", new { lotsType = "rejected" })" class="btn btn-info" role="button">Лоты, в которых я выиграл</a>
+                    </li>
+                </ul>
+
+            Phone Numbers can used as a second factor of verification in a two-factor authentication system.
+
+             See <a href="https://go.microsoft.com/fwlink/?LinkId=403804">this article</a>
+                for details on setting up this ASP.NET application to support two-factor authentication using SMS.
+
+             Uncomment the following block after you have set up two-factor authentication
+        *@
+        @*
+            <dt>Phone Number:</dt>
+            <dd>
+                @(Model.PhoneNumber ?? "None")
+                @if (Model.PhoneNumber != null)
+                {
+                    <br />
+                    <text>[&nbsp;&nbsp;@Html.ActionLink("Change", "AddPhoneNumber")&nbsp;&nbsp;]</text>
+                    using (Html.BeginForm("RemovePhoneNumber", "Manage", FormMethod.Post, new { @class = "form-horizontal", role = "form" }))
+                    {
+                        @Html.AntiForgeryToken()
+                        <text>[<input type="submit" value="Remove" class="btn-link" />]</text>
+                    }
+                }
+                else
+                {
+                    <text>[&nbsp;&nbsp;@Html.ActionLink("Add", "AddPhoneNumber")
+                }
+            </dd>
+        *@
+        @*@if (Model.TwoFactor)
             {
-                <br />
-                <text>[&nbsp;&nbsp;@Html.ActionLink("Change", "AddPhoneNumber")&nbsp;&nbsp;]</text>
-                using (Html.BeginForm("RemovePhoneNumber", "Manage", FormMethod.Post, new { @class = "form-horizontal", role = "form" }))
+                using (Html.BeginForm("DisableTwoFactorAuthentication", "Manage", FormMethod.Post, new { @class = "form-horizontal", role = "form" }))
                 {
                     @Html.AntiForgeryToken()
-                    <text>[<input type="submit" value="Remove" class="btn-link" />]</text>
+                    <text>Enabled
+                    <input type="submit" value="Disable" class="btn btn-link" />
+                    </text>
                 }
             }
             else
             {
-                <text>[&nbsp;&nbsp;@Html.ActionLink("Add", "AddPhoneNumber")
-            }
-        </dd>
-    *@
-    @*@if (Model.TwoFactor)
-        {
-            using (Html.BeginForm("DisableTwoFactorAuthentication", "Manage", FormMethod.Post, new { @class = "form-horizontal", role = "form" }))
-            {
-                @Html.AntiForgeryToken()
-                <text>Enabled
-                <input type="submit" value="Disable" class="btn btn-link" />
-                </text>
-            }
-        }
-        else
-        {
-            using (Html.BeginForm("EnableTwoFactorAuthentication", "Manage", FormMethod.Post, new { @class = "form-horizontal", role = "form" }))
-            {
-                @Html.AntiForgeryToken()
-                <text>Disabled
-                <input type="submit" value="Enable" class="btn btn-link" />
-                </text>
-            }
-        }*@
-    </dd>
-    </dl>
-</div>
+                using (Html.BeginForm("EnableTwoFactorAuthentication", "Manage", FormMethod.Post, new { @class = "form-horizontal", role = "form" }))
+                {
+                    @Html.AntiForgeryToken()
+                    <text>Disabled
+                    <input type="submit" value="Enable" class="btn btn-link" />
+                    </text>
+                }
+            }*@
+    </div>

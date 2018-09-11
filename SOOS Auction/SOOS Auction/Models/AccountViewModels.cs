@@ -136,6 +136,18 @@ namespace SOOS_Auction.Models
 
     }
 
+    public class ChangeAvatarModel
+    {
+        public string AvatarUrl { get; set; }
+        public bool IsSuccess { get; set; }
+        public string Error { get; set; }
+    }
+    public class AddReviewModel
+    {
+        public bool IsSuccess { get; set; }
+        public string Error { get; set; }
+    }
+
     public class ResetPasswordViewModel
     {
         [Required]

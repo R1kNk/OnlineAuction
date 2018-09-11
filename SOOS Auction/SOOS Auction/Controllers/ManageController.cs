@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Net;
 using System.Threading.Tasks;
@@ -7,6 +8,7 @@ using System.Web.Mvc;
 using Microsoft.AspNet.Identity;
 using Microsoft.AspNet.Identity.Owin;
 using Microsoft.Owin.Security;
+using SOOS_Auction.AuctionDatabase.Models;
 using SOOS_Auction.Models;
 
 namespace SOOS_Auction.Controllers
@@ -56,7 +58,7 @@ namespace SOOS_Auction.Controllers
         public async Task<ActionResult> Index(ManageMessageId? message)
         {
             ViewBag.StatusMessage =
-                message == ManageMessageId.ChangePasswordSuccess ? "Your password has been changed."
+                message == ManageMessageId.ChangePasswordSuccess ? "Пароль успешно изменен."
                 : message == ManageMessageId.SetPasswordSuccess ? "Your password has been set."
                 : message == ManageMessageId.SetTwoFactorSuccess ? "Your two-factor authentication provider has been set."
                 : message == ManageMessageId.Error ? "An error has occurred."
@@ -79,10 +81,76 @@ namespace SOOS_Auction.Controllers
                 AvatarUrl = currentUser.AvatarUrl,
                 UserLocation = currentUser.UserLocation,
                 TelephoneNumber = currentUser.TelephoneNumber,
-                PositiveReview=currentUser.PositiveReview,
-               NegativeReview = currentUser.NegativeReview
+                PositiveReview = currentUser.PositiveReview,
+                NegativeReview = currentUser.NegativeReview,
+                Email = currentUser.Email,
+                UserId = HttpContext.User.Identity.GetUserId(),
+                Balance = Math.Round(currentUser.Balance, 2).ToString() + " бел. руб.",
+                BusyBalance = Math.Round(currentUser.BusyBalance,2).ToString() + " бел. руб.",
+                FreeBalance = currentUser.UnBusyBalance + " бел. руб."
+               
             };
             return View(model);
+        }
+
+        [HttpGet]
+        public ActionResult ManageGetReviews(string userId, string state)
+        {
+            AuctionContext auctionContext = new AuctionContext();
+            ApplicationUser user = UserManager.FindById(userId);
+            if (user == null) return PartialView(new List<LotPreviewDetails>());
+            List<UserReview> reviews;
+            List<ReviewModel> reviewModels = new List<ReviewModel>();
+            if (state == "all")
+            {
+                reviews = auctionContext.Reviews.Where(p => p.UserId == user.Id).OrderBy(p => p.date).ToList();
+                foreach (var review in reviews)
+                {
+                    ReviewModel reviewModel = new ReviewModel();
+                    reviewModel.isPositive = review.isPositive;
+                    reviewModel.Text = review.Text;
+                    reviewModel.UserFromId = review.UserIdFrom;
+                    ApplicationUser userfrom = UserManager.FindById(review.UserIdFrom);
+                    if (userfrom == null) continue;
+                    reviewModel.UserFromAvatarUrl = userfrom.AvatarUrl;
+                    reviewModel.UserFromUsername = userfrom.UserName;
+                    reviewModels.Add(reviewModel);
+                }
+            }
+            else if (state == "positive")
+            {
+                reviews = auctionContext.Reviews.Where(p => p.UserId == user.Id && p.isPositive == true).OrderBy(p => p.date).ToList();
+                foreach (var review in reviews)
+                {
+                    ReviewModel reviewModel = new ReviewModel();
+                    reviewModel.isPositive = review.isPositive;
+                    reviewModel.Text = review.Text;
+                    reviewModel.UserFromId = review.UserIdFrom;
+                    ApplicationUser userfrom = UserManager.FindById(review.UserIdFrom);
+                    if (userfrom == null) continue;
+                    reviewModel.UserFromAvatarUrl = userfrom.AvatarUrl;
+                    reviewModel.UserFromUsername = userfrom.UserName;
+                    reviewModels.Add(reviewModel);
+                }
+            }
+            else if (state == "negative")
+            {
+                reviews = auctionContext.Reviews.Where(p => p.UserId == user.Id && p.isNegative == true).OrderBy(p => p.date).ToList();
+                foreach (var review in reviews)
+                {
+                    ReviewModel reviewModel = new ReviewModel();
+                    reviewModel.isPositive = review.isPositive;
+                    reviewModel.Text = review.Text;
+                    reviewModel.UserFromId = review.UserIdFrom;
+                    ApplicationUser userfrom = UserManager.FindById(review.UserIdFrom);
+                    if (userfrom == null) continue;
+                    reviewModel.UserFromAvatarUrl = userfrom.AvatarUrl;
+                    reviewModel.UserFromUsername = userfrom.UserName;
+                    reviewModels.Add(reviewModel);
+                }
+            }
+
+            return PartialView(reviewModels);
         }
 
         //
@@ -248,7 +316,7 @@ namespace SOOS_Auction.Controllers
                 {
                     await SignInManager.SignInAsync(user, isPersistent: false, rememberBrowser: false);
                 }
-                return RedirectToAction("Index", new { Message = ManageMessageId.ChangePasswordSuccess });
+                return RedirectToAction("Index");
             }
             AddErrors(result);
             return View(model);

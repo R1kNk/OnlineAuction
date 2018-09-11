@@ -3,6 +3,7 @@ using Microsoft.AspNet.Identity.Owin;
 using SOOS_Auction.AuctionDatabase.Models;
 using SOOS_Auction.AuctionGoogleDrive;
 using SOOS_Auction.Models;
+using SOOS_Auction.Models.ImagesRequests;
 using System;
 using System.Collections.Generic;
 using System.Data.Entity;
@@ -15,7 +16,6 @@ using System.Web.Mvc;
 
 namespace SOOS_Auction.Controllers
 {
-    [Authorize]
     public class LotController : Controller
     {
         private ApplicationUserManager _userManager;
@@ -44,6 +44,89 @@ namespace SOOS_Auction.Controllers
                   new SelectListItem { Text = "Слуцк", Value = "Слуцк" }
                      };
 
+        public ActionResult Index()
+        {
+            AuctionContext auctionContext = new AuctionContext();
+            List<Lot> lots = new List<Lot>();
+            lots = auctionContext.Lots.Include(path=>path.Bids).Where(p=>p.State=="started").OrderBy(p => p.FinishDate).ToList();
+            List<LotPreviewDetails> lotPreviewDetails = LotsToLotsPreview(lots);
+            ViewBag.Title = "Все текущие лоты:";
+            return View(lotPreviewDetails);
+        }
+
+        [HttpGet]
+        public ActionResult Search(string searchText)
+        {
+            AuctionContext context = new AuctionContext();
+            string[] splittedText = searchText.Split(' ');
+            List<Lot> lots = new List<Lot>();
+            List<Lot> databaseLots = context.Lots.Include(path=>path.Bids).Where(p => p.State == "started").ToList();
+            foreach (var lot in databaseLots)
+            {
+                foreach (var item in splittedText)
+                {
+                    if (lot.Name.Contains(item)) { lots.Add(lot); break; }
+                }
+            }
+            List<LotPreviewDetails> details = LotsToLotsPreview(lots);
+            ViewBag.Title = "Результаты поиска по запросу: " + searchText;
+            return View("Index", details);
+        }
+
+        [HttpGet]
+        public ActionResult BySection(int sectionId)
+        {
+            AuctionContext auctionContext = new AuctionContext();
+            Section section = auctionContext.Sections.Where(p => p.SectionId == sectionId).SingleOrDefault();
+            if (section == null) return new HttpStatusCodeResult(HttpStatusCode.NotFound);
+            List<Lot> lots = auctionContext.Lots.Include(path => path.Bids).Include(p => p.Category).Where(p => p.Category.SectionId == section.SectionId&&p.State=="started").ToList();
+            List<LotPreviewDetails> details = LotsToLotsPreview(lots);
+            ViewBag.Title = "Результаты поиска по разделу " + section.Name;
+            return View("Index", details);
+        }
+
+        [HttpGet]
+        public ActionResult ByCategory(int categoryId)
+        {
+            AuctionContext auctionContext = new AuctionContext();
+            Category category = auctionContext.Categories.Where(p => p.CategoryId == categoryId).SingleOrDefault();
+            if (category == null) return new HttpStatusCodeResult(HttpStatusCode.NotFound);
+            List<Lot> lots = auctionContext.Lots.Include(path => path.Bids).Include(p => p.Category).Where(p => p.Category.CategoryId == category.CategoryId && p.State == "started").ToList();
+            List<LotPreviewDetails> details = LotsToLotsPreview(lots);
+            ViewBag.Title = "Результаты поиска по категории " + category.Name;
+            return View("Index", details);
+        }
+        List<LotPreviewDetails> LotsToLotsPreview(List<Lot> lots)
+        {
+            List<LotPreviewDetails> lotPreviewDetails = new List<LotPreviewDetails>();
+            foreach (var lot in lots)
+            {
+                LotPreviewDetails detail = new LotPreviewDetails();
+                detail.LotId = lot.LotId;
+                detail.CurrentPrice = lot.CurrentPrice;
+                detail.BidsCount = lot.Bids.Count();
+                detail.FinishDate = lot.FinishDate.ToString("D");
+                detail.Location = lot.Location;
+                detail.Name = lot.Name;
+                if (lot.State == "started") { detail.State = "Торги начались"; }
+                else if (lot.State == "pending") { detail.State = "Ожидает подтверждения"; }
+                else if (lot.State == "finished") { detail.State = "Торги завершены"; }
+                else if (lot.State == "rejected") { detail.State = "Отклонен"; }
+                if (lot.isPaymentBySite)
+                {
+                    detail.Payment = "C помощью сайта";
+                }
+                else detail.Payment = "По договоренности";
+                List<string> images = FileApiMethods.GetFilesIDFromFolder(lot.ImagesUrl);
+                if (images.Count == 0) detail.ImageUrl = "1R65ppqtbBGs3CJMKRDL8Mb5cA1WpA1-y";
+                else
+                {
+                    detail.ImageUrl = images.Last();
+                }
+                lotPreviewDetails.Add(detail);
+            }
+            return lotPreviewDetails;
+        }
 
         // GET: Lot/Details/5
         public ActionResult Details(int? id)
@@ -52,9 +135,9 @@ namespace SOOS_Auction.Controllers
             Lot findedLot;
             AuctionContext context = new AuctionContext();
 
-            findedLot = context.Lots.Include(p=>p.Bids).Include(p=>p.Category).Include(p=>p.LotPayment).Include(p=>p.LotReceiving).Include(p=>p.Bids).Where(p => p.LotId == id).SingleOrDefault();
+            findedLot = context.Lots.Include(p=>p.Category).Include(p=>p.Bids).Include(p=>p.Category).Include(p=>p.LotPayment).Include(p=>p.LotReceiving).Include(p=>p.Bids).Where(p => p.LotId == id).SingleOrDefault();
             if(findedLot==null) return new HttpStatusCodeResult(HttpStatusCode.NotFound);
-            if(findedLot.State=="pending")
+            if(findedLot.State=="pending"||findedLot.State=="rejected")
             {
                 if (HttpContext.User.IsInRole("admin")||HttpContext.User.IsInRole("moder"))
                 {
@@ -66,6 +149,7 @@ namespace SOOS_Auction.Controllers
 
             LotDetails lotDetails = LotToLotDetailsModel(findedLot);
             if (lotDetails == null) return new HttpStatusCodeResult(HttpStatusCode.BadRequest);
+            ViewBag.Title = lotDetails.Name;
             return View(lotDetails);
         }
 
@@ -87,7 +171,7 @@ namespace SOOS_Auction.Controllers
 
         [Authorize]
         [HttpPost]
-        public async Task<ActionResult> Create(LotCreate model)
+        public ActionResult Create(LotCreate model)
         {
             AuctionContext auctionContext = new AuctionContext();
             if (!ModelState.IsValid)
@@ -102,9 +186,16 @@ namespace SOOS_Auction.Controllers
                 return View(model);
             }
 
-            Lot newLot = new Lot() { Name = model.Name, CategoryId = model.CategoryId, State = "pending", CurrentPrice = 0, MinimalPrice = model.MinimalPrice, MinimalStep = model.MinimalStep, Description = model.Description, DaysDuration = model.DaysDuration, UserId = HttpContext.User.Identity.GetUserId(), StartDate=DateTime.Now,FinishDate=DateTime.Now };
-            LotReceiving newReceiving = new LotReceiving() { ByPost = model.ByPost, ByPostToAnotherCountry = model.ByPostToAnotherCountry, DeliveryInPerson = model.DeliveryInPerson, Location = model.Location, ReturnAfterBuyingIsForbidden = model.ReturnAfterBuyingIsForbidden };
-            LotPayment newPayment = new LotPayment() { Cash = model.Cash, NonCash = model.NonCash, FullPrepaymentPostSending = model.FullPrepaymentPostSending, AdditionalInformation = model.AdditionalInformation };
+            Lot newLot = new Lot() { Name = model.Name, CategoryId = model.CategoryId, State = "pending", CurrentPrice = 0, MinimalPrice = model.MinimalPrice, MinimalStep = model.MinimalStep, Description = model.Description, DaysDuration = model.DaysDuration, UserId = HttpContext.User.Identity.GetUserId(), isPaymentBySite=model.isPaymentBySite, StartDate=DateTime.Now,FinishDate=DateTime.Now, Location=model.Location };
+            LotReceiving newReceiving = new LotReceiving() { ByPost = model.ByPost, ByPostToAnotherCountry = model.ByPostToAnotherCountry, DeliveryInPerson = model.DeliveryInPerson, Location = model.Location, ReturnAfterBuyingIsForbidden = model.ReturnAfterBuyingIsForbidden, AdditionalInformation = model.AdditionalInformation };
+
+            LotPayment newPayment;
+            if(newLot.isPaymentBySite)
+                newPayment = new LotPayment() { Cash =false, NonCash = false, FullPrepaymentPostSending = false };
+            else
+            {
+                newPayment = new LotPayment() { Cash = model.Cash, NonCash = model.NonCash, FullPrepaymentPostSending = model.FullPrepaymentPostSending };
+            }
             auctionContext.LotsReceivings.Add(newReceiving);
             auctionContext.SaveChanges();
             auctionContext.LotPayments.Add(newPayment);
@@ -122,16 +213,16 @@ namespace SOOS_Auction.Controllers
             var outer = Task.Factory.StartNew(() =>      
             {
                 UploadImages(newFolderId);
-                return RedirectToAction("xyi", "Home");
                 
             });
-            return RedirectToAction("About", "Home");
+            return RedirectToAction("Index", "Lot");
             //image uploading
             
             
             //image uploading
         }
-         
+
+        [Authorize]
         public void UploadImages(string folderId)
         {
             List<string> files = GetUserImages();
@@ -152,6 +243,8 @@ namespace SOOS_Auction.Controllers
         {
             AuctionContext context = new AuctionContext();
             NewBidResult newBidResult = new NewBidResult();
+            if (!HttpContext.User.Identity.IsAuthenticated) { newBidResult.bidErrors.Add("authError"); return Json(newBidResult); }
+
             double newBidPrice;
             try
             {
@@ -168,7 +261,7 @@ namespace SOOS_Auction.Controllers
                 }
             }
             Lot findedLot;
-            findedLot = context.Lots.Where(p => p.LotId == lotId).SingleOrDefault();
+            findedLot = context.Lots.Include(path=>path.Bids).Where(p => p.LotId == lotId).SingleOrDefault();
             if (findedLot == null) {
                 newBidResult.bidErrors.Add("Лот не существует либо удален. Обновите страницу."); return Json(newBidResult);
             };
@@ -182,6 +275,39 @@ namespace SOOS_Auction.Controllers
             {
                 newBidResult.bidErrors.Add("Ставка должна быть больше или равна минимальной цене лота!"); return Json(newBidResult);
             }
+            string currentUser = HttpContext.User.Identity.GetUserId();
+            ApplicationUser winner = UserManager.Users.Where(p => p.Id == currentUser).SingleOrDefault();
+            if (winner == null)
+            {
+                newBidResult.bidErrors.Add("Потенциальный победитель не существует или удален!"); return Json(newBidResult);
+            }
+            if(findedLot.isPaymentBySite)
+            {
+                int userBidsCount = default(int);
+
+                    userBidsCount = findedLot.Bids.Where(p => p.User == winner.Id).Count();
+                if (userBidsCount != 0)
+                {
+                    double maxPrice = findedLot.Bids.Where(p => p.User == winner.Id).Select(p => p.Price).Max();
+                    if (winner.Balance - winner.BusyBalance < newBidPrice - maxPrice)
+                    {
+                        newBidResult.bidErrors.Add("У вас недостаточно денег на балансе для этой ставки!"); return Json(newBidResult);
+                    }
+                    winner.BusyBalance += (newBidPrice - maxPrice);
+                    UserManager.Update(winner);
+
+                }
+                else
+                {
+                    if (winner.Balance < newBidPrice)
+                    {
+                        newBidResult.bidErrors.Add("У вас недостаточно денег на балансе для этой ставки!"); return Json(newBidResult);
+                    }
+                    winner.BusyBalance += newBidPrice;
+                    UserManager.Update(winner);
+
+                }
+            }
             Bid newbid = new Bid() { LotId = findedLot.LotId, Price = newBidPrice, BidDate = DateTime.Now, User = HttpContext.User.Identity.GetUserId() };
             context.Bids.Add(newbid);
             
@@ -194,17 +320,12 @@ namespace SOOS_Auction.Controllers
                 newBidResult.bidErrors.Add("Лот не существует либо удален. Обновите страницу."); return Json(newBidResult);
             }
             newBidResult.WinnerId = findedLot.WinnerId;
-            ApplicationUser winner = UserManager.Users.Where(p => p.Id == newBidResult.WinnerId).SingleOrDefault();
-            if (winner == null)
-            {
-                newBidResult.bidErrors.Add("Потенциальный победитель не существует или удален!"); return Json(newBidResult);
-            }
+            
             newBidResult.WinnerName = winner.UserName;
             newBidResult.isSuccess = true;
             return Json(newBidResult);
         }
 
-        [Authorize]
         [HttpPost]
         public JsonResult UpdateLotData(int lotId)
         {
@@ -237,7 +358,6 @@ namespace SOOS_Auction.Controllers
             return Json(lotData);
         }
 
-        [Authorize]
         [HttpPost]
         public JsonResult FinishLot(int lotId)
         {
@@ -251,6 +371,20 @@ namespace SOOS_Auction.Controllers
             if (findedLot.State == "started")
             {
                 findedLot.State = "finished";
+                if (findedLot.isPaymentBySite)
+                {
+                    List<Bid> allLotBids = findedLot.Bids.OrderByDescending(p=>p.Price).ToList();
+                    if (allLotBids.Count != 0)
+                    {
+                        ApplicationUser lotOwner = UserManager.FindById(findedLot.UserId);
+                        lotOwner.Balance += (allLotBids[0].Price * 0.97);
+                        ApplicationUser winner = UserManager.FindById(allLotBids[0].User);
+                        winner.BusyBalance -= allLotBids[0].Price;
+                        winner.Balance -= allLotBids[0].Price;
+                        UserManager.Update(lotOwner);
+                        UserManager.Update(winner);
+                    }
+                }
                 context.SaveChanges();
                 return Json("ok");
             }
@@ -258,7 +392,6 @@ namespace SOOS_Auction.Controllers
                 return Json("no");
         }
 
-        [Authorize]
         [HttpGet]
         public JsonResult UpdateWinnerInfo (int lotId)
         {
@@ -297,7 +430,6 @@ namespace SOOS_Auction.Controllers
         }
 
 
-        [Authorize]
         public ActionResult GetCategories(int? id)
         {
             AuctionContext auctionContext = new AuctionContext();
@@ -305,7 +437,6 @@ namespace SOOS_Auction.Controllers
             return PartialView(categories);
         }
 
-        [Authorize]
         public ActionResult GetBids(int? id)
         {
             AuctionContext auctionContext = new AuctionContext();
@@ -325,14 +456,213 @@ namespace SOOS_Auction.Controllers
             {
                 ApplicationUser user = UserManager.Users.Where(p => p.Id == Bid.User).SingleOrDefault();
                 if (user == null) continue;
-                bidsDetails.Add(new BidDetails() { bid = Bid, UserName = user.UserName, LotOwnerUserName = OwnerName, CurrentUserName = HttpContext.User.Identity.Name, LotState = Bid.Lot.State });
+                bidsDetails.Add(new BidDetails() { bid = Bid, UserName = user.UserName, UserId=user.Id,LotOwnerUserName = OwnerName, CurrentUserName = HttpContext.User.Identity.Name, LotState = Bid.Lot.State });
                 
             }
             bidsDetails = bidsDetails.OrderByDescending(p => p.bid.Price).ToList();
             return PartialView(bidsDetails);
         }
 
+        [HttpGet]
+        public ActionResult ManageGetLots(string userId, string state)
+        {
+            AuctionContext auctionContext = new AuctionContext();
+            ApplicationUser user = UserManager.FindById(userId);
+            if (user == null) return PartialView(new List<LotPreviewDetails>());
+            List<Lot> lots;
+            List<LotPreviewDetails> details = new List<LotPreviewDetails>();
+            if (state == "userStarted")
+            {
+                lots = auctionContext.Lots.Include(path => path.Bids).Where(p => p.UserId == user.Id && p.State == "started").OrderBy(p => p.FinishDate).ToList();
+                foreach (var lot in lots)
+                {
+                    LotPreviewDetails detail = new LotPreviewDetails();
+                    detail.LotId = lot.LotId;
+                    detail.CurrentPrice = lot.CurrentPrice;
+                    detail.BidsCount = lot.Bids.Count();
+                    detail.FinishDate = lot.FinishDate.ToString("D");
+                    detail.Location = lot.Location;
+                    detail.Name = lot.Name;
+                    if (lot.State == "started") { detail.State = "Торги начались"; }
+                    else if (lot.State == "pending") { detail.State = "Ожидает подтверждения"; }
+                    else if (lot.State =="finished") { detail.State = "Торги завершены"; }
+                    else if (lot.State =="rejected") { detail.State = "Отклонен"; }
+                    if (lot.isPaymentBySite)
+                    {
+                        detail.Payment = "C помощью сайта";
+                    }
+                    else detail.Payment = "По договоренности";
+                    List<string> images = FileApiMethods.GetFilesIDFromFolder(lot.ImagesUrl);
+                    if (images.Count == 0) detail.ImageUrl = "1R65ppqtbBGs3CJMKRDL8Mb5cA1WpA1-y";
+                    else
+                    {
+                        detail.ImageUrl = images.First();
+                    }
+                    details.Add(detail);
+                }
+            }
+            else if (state == "userPending")
+            {
+                lots = auctionContext.Lots.Include(path => path.Bids).Where(p => p.UserId == user.Id && p.State == "pending").OrderBy(p => p.FinishDate).ToList();
+                foreach (var lot in lots)
+                {
+                    LotPreviewDetails detail = new LotPreviewDetails();
+                    detail.LotId = lot.LotId;
+                    detail.CurrentPrice = lot.CurrentPrice;
+                    detail.BidsCount = lot.Bids.Count();
+                    detail.FinishDate = lot.FinishDate.ToString("D");
+                    detail.Location = lot.Location;
+                    detail.Name = lot.Name;
+                    if (lot.State == "started") { detail.State = "Торги начались"; }
+                    else if (lot.State == "pending") { detail.State = "Ожидает подтверждения"; }
+                    else if (lot.State == "finished") { detail.State = "Торги завершены"; }
+                    else if (lot.State == "rejected") { detail.State = "Отклонен"; }
+                    if (lot.isPaymentBySite)
+                    {
+                        detail.Payment = "C помощью сайта";
+                    }
+                    else detail.Payment = "По договоренности";
+                    List<string> images = FileApiMethods.GetFilesIDFromFolder(lot.ImagesUrl);
+                    if (images.Count == 0) detail.ImageUrl = "1R65ppqtbBGs3CJMKRDL8Mb5cA1WpA1-y";
+                    else
+                    {
+                        detail.ImageUrl = images.First();
+                    }
+                    details.Add(detail);
+                }
+            }
+            else if (state == "userFinished")
+            {
+                lots = auctionContext.Lots.Include(path => path.Bids).Where(p => p.UserId == user.Id && p.State == "finished").OrderBy(p => p.FinishDate).ToList();
+                foreach (var lot in lots)
+                {
+                    LotPreviewDetails detail = new LotPreviewDetails();
+                    detail.LotId = lot.LotId;
+                    detail.CurrentPrice = lot.CurrentPrice;
+                    detail.BidsCount = lot.Bids.Count();
+                    detail.FinishDate = lot.FinishDate.ToString("D");
+                    detail.Location = lot.Location;
+                    detail.Name = lot.Name;
+                    if (lot.State == "started") { detail.State = "Торги начались"; }
+                    else if (lot.State == "pending") { detail.State = "Ожидает подтверждения"; }
+                    else if (lot.State == "finished") { detail.State = "Торги завершены"; }
+                    else if (lot.State == "rejected") { detail.State = "Отклонен"; }
+                    if (lot.isPaymentBySite)
+                    {
+                        detail.Payment = "C помощью сайта";
+                    }
+                    else detail.Payment = "По договоренности";
+                    List<string> images = FileApiMethods.GetFilesIDFromFolder(lot.ImagesUrl);
+                    if (images.Count == 0) detail.ImageUrl = "1R65ppqtbBGs3CJMKRDL8Mb5cA1WpA1-y";
+                    else
+                    {
+                        detail.ImageUrl = images.First();
+                    }
+                    details.Add(detail);
+                }
+            }
+            else if (state == "userParticipating")
+            {
+                lots = auctionContext.Lots.Include(path => path.Bids).Where(p => p.UserId != user.Id && p.State == "started").OrderBy(p => p.FinishDate).ToList();
+                List<Lot> participatingLots = new List<Lot>();
+                foreach (var lot in lots)
+                {
+                    List<Bid> bids = lot.Bids.ToList();
+                    int count = bids.Where(p => p.User == user.Id).Count();
+                    if (count != 0) participatingLots.Add(lot);
+                }
+                foreach (var lot in participatingLots)
+                {
+                    LotPreviewDetails detail = new LotPreviewDetails();
+                    detail.LotId = lot.LotId;
+                    detail.CurrentPrice = lot.CurrentPrice;
+                    detail.BidsCount = lot.Bids.Count();
+                    detail.FinishDate = lot.FinishDate.ToString("D");
+                    detail.Location = lot.Location;
+                    detail.Name = lot.Name;
+                    if (lot.State == "started") { detail.State = "Торги начались"; }
+                    else if (lot.State == "pending") { detail.State = "Ожидает подтверждения"; }
+                    else if (lot.State == "finished") { detail.State = "Торги завершены"; }
+                    else if (lot.State == "rejected") { detail.State = "Отклонен"; }
+                    if (lot.isPaymentBySite)
+                    {
+                        detail.Payment = "C помощью сайта";
+                    }
+                    else detail.Payment = "По договоренности";
+                    List<string> images = FileApiMethods.GetFilesIDFromFolder(lot.ImagesUrl);
+                    if (images.Count == 0) detail.ImageUrl = "1R65ppqtbBGs3CJMKRDL8Mb5cA1WpA1-y";
+                    else
+                    {
+                        detail.ImageUrl = images.First();
+                    }
+                    details.Add(detail);
+                }
+            }
+            else if (state == "userWon")
+            {
+                lots = auctionContext.Lots.Include(path => path.Bids).Where(p => p.WinnerId == user.Id && p.State == "finished").OrderBy(p => p.FinishDate).ToList();
+                foreach (var lot in lots)
+                {
+                    LotPreviewDetails detail = new LotPreviewDetails();
+                    detail.LotId = lot.LotId;
+                    detail.CurrentPrice = lot.CurrentPrice;
+                    detail.BidsCount = lot.Bids.Count();
+                    detail.FinishDate = lot.FinishDate.ToString("D");
+                    detail.Location = lot.Location;
+                    detail.Name = lot.Name;
+                    if (lot.State == "started") { detail.State = "Торги начались"; }
+                    else if (lot.State == "pending") { detail.State = "Ожидает подтверждения"; }
+                    else if (lot.State == "finished") { detail.State = "Торги завершены"; }
+                    else if (lot.State == "rejected") { detail.State = "Отклонен"; }
+                    if (lot.isPaymentBySite)
+                    {
+                        detail.Payment = "C помощью сайта";
+                    }
+                    else detail.Payment = "По договоренности";
+                    List<string> images = FileApiMethods.GetFilesIDFromFolder(lot.ImagesUrl);
+                    if (images.Count == 0) detail.ImageUrl = "1R65ppqtbBGs3CJMKRDL8Mb5cA1WpA1-y";
+                    else
+                    {
+                        detail.ImageUrl = images.First();
+                    }
+                    details.Add(detail);
+                }
+            }
+            else if (state == "user")
+            {
+                lots = auctionContext.Lots.Include(path => path.Bids).Where(p => p.UserId == user.Id).OrderBy(p => p.FinishDate).ToList();
+                foreach (var lot in lots)
+                {
+                    LotPreviewDetails detail = new LotPreviewDetails();
+                    detail.LotId = lot.LotId;
+                    detail.CurrentPrice = lot.CurrentPrice;
+                    detail.BidsCount = lot.Bids.Count();
+                    detail.FinishDate = lot.FinishDate.ToString("D");
+                    detail.Location = lot.Location;
+                    detail.Name = lot.Name;
+                    if (lot.State == "started") { detail.State = "Торги начались"; }
+                    else if (lot.State == "pending") { detail.State = "Ожидает подтверждения"; }
+                    else if (lot.State == "finished") { detail.State = "Торги завершены"; }
+                    else if (lot.State == "rejected") { detail.State = "Отклонен"; }
+                    if (lot.isPaymentBySite)
+                    {
+                        detail.Payment = "C помощью сайта";
+                    }
+                    else detail.Payment = "По договоренности";
+                    List<string> images = FileApiMethods.GetFilesIDFromFolder(lot.ImagesUrl);
+                    if (images.Count == 0) detail.ImageUrl = "1R65ppqtbBGs3CJMKRDL8Mb5cA1WpA1-y";
+                    else
+                    {
+                        detail.ImageUrl = images.First();
+                    }
+                    details.Add(detail);
+                }
+            }
+            return PartialView(details);
+        }
+
         [HttpPost]
+        [Authorize]
         public JsonResult ImageUpload()
         {
             string __filepath = Server.MapPath("~/uploads");
@@ -389,6 +719,7 @@ namespace SOOS_Auction.Controllers
 
 
         [HttpPost]
+        [Authorize]
         public JsonResult ImageDelete(string id)
         {
             string res = "no";
@@ -408,6 +739,7 @@ namespace SOOS_Auction.Controllers
         }
 
         [HttpPost]
+        [Authorize]
         public JsonResult BidDelete(string id)
         {
             string res = "no";
@@ -425,6 +757,26 @@ namespace SOOS_Auction.Controllers
             if (lotOwner == null) return Json(res);
             if (lotOwner.UserName == HttpContext.User.Identity.Name&&bid.Lot.State=="started")
             {
+                if (bid.Lot.isPaymentBySite)
+                {
+                    ApplicationUser bidder = UserManager.FindById(bid.User);
+                    Lot lot = auctionContext.Lots.Include(p => p.Bids).Where(p => p.LotId == bid.LotId).SingleOrDefault();
+                    if (lot == null) return Json("no");
+                    double bidPrice = bid.Price;
+                    int bidsCount = lot.Bids.Where(p => p.User== bid.User).Count();
+                    if (bidsCount == 1)
+                    {
+                        bidder.BusyBalance -= bid.Price;
+                        UserManager.Update(bidder);
+                    }
+                    else
+                    {
+                        double nextMaxPrice = lot.Bids.Where(p => p.Price != bid.Price && p.User==bidder.Id).Select(p => p.Price).Max();
+                        bidder.BusyBalance -= bid.Price;
+                        bidder.BusyBalance += nextMaxPrice;
+                        UserManager.Update(bidder);
+                    }
+                }
                 auctionContext.Bids.Remove(bid);
                 auctionContext.SaveChanges();
                 UpdateLotPrice(bid.LotId);
@@ -435,6 +787,7 @@ namespace SOOS_Auction.Controllers
             return Json(res);
         }
 
+        [Authorize]
         public void DeleteUserImages()
         {
             string path = HttpContext.Server.MapPath("/uploads");
@@ -449,7 +802,7 @@ namespace SOOS_Auction.Controllers
             }
         }
 
-        //
+        [Authorize]
         public List<string> GetUserImages()
         {
             string path = HttpContext.Server.MapPath("/uploads");
@@ -494,6 +847,8 @@ namespace SOOS_Auction.Controllers
             Category currentCategory = context.Categories.Include(p => p.Section).Where(p => p.CategoryId == findedLot.CategoryId).Single();
             lotDetails.SectionName = currentCategory.Section.Name;
             lotDetails.CategoryName = currentCategory.Name;
+            lotDetails.CategoryId = currentCategory.CategoryId;
+            lotDetails.SectionId = currentCategory.Section.SectionId;
             lotDetails.Location = findedLot.LotReceiving.Location;
             lotDetails.ByPost = findedLot.LotReceiving.ByPost;
             lotDetails.DeliveryInPerson = findedLot.LotReceiving.DeliveryInPerson;
@@ -502,11 +857,14 @@ namespace SOOS_Auction.Controllers
             lotDetails.Cash = findedLot.LotPayment.Cash;
             lotDetails.NonCash = findedLot.LotPayment.NonCash;
             lotDetails.FullPrepaymentPostSending = findedLot.LotPayment.FullPrepaymentPostSending;
-            lotDetails.PostPaymentAdditionalInformation = findedLot.LotPayment.AdditionalInformation;
+            lotDetails.PostPaymentAdditionalInformation = findedLot.LotReceiving.AdditionalInformation;
             lotDetails.UserImagesID = FileApiMethods.GetFilesIDFromFolder(findedLot.ImagesUrl);
+            if (lotDetails.UserImagesID == null) return null;
             lotDetails.Bids = findedLot.Bids;
             lotDetails.State = findedLot.State;
             lotDetails.WinnerId = findedLot.WinnerId;
+            lotDetails.isPaymentBySite = findedLot.isPaymentBySite;
+            lotDetails.Location = findedLot.Location;
             ApplicationUser winner = UserManager.Users.Where(p => p.Id == findedLot.WinnerId).SingleOrDefault();
             if (winner != null)
             {
@@ -517,12 +875,5 @@ namespace SOOS_Auction.Controllers
 
     }
 
-   
-    
-    public class Result
-    {
-        public string Error { get; set; }
-        public List<string> Files { get; set; }
-    }
 }
 

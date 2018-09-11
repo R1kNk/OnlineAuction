@@ -1,0 +1,328 @@
+﻿@model SOOS_Auction.Models.IndexViewModel
+
+<p class="text-success">@ViewBag.StatusMessage</p>
+<p hidden id="userId">@Model.UserId</p>
+<div>
+    <h2 style="margin-left:10px;">Профиль пользователя</h2>
+    <hr />
+    <div class="row">
+        <div class="col-md-2" style="margin-left:10px;">
+                    <img id="Avatar" style="max-width:100%; max-height:100%;" src="https://drive.google.com/uc?export=view&id=@Model.AvatarUrl" alt="">
+            <div class="btn-group" style="width:100%; margin-bottom:20px; margin-top:20px;">
+                <button id="userLots" type="button" class="btn btn-info" style="float:left; width:80%;">Лоты</button>
+                <button type="button" class="btn btn-info dropdown-toggle" style="float:left; width:20%;" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                    <span class="caret"></span>
+                    <span class="sr-only">Toggle Dropdown</span>
+                </button>
+                <ul class="dropdown-menu" style="width:100%;">
+                    <li style="margin-left:-15px;"><a id="userStartedLots" href="#">Действующие лоты пользователя</a></li>
+                    <li style="margin-left:-15px;"><a id="userFinishedLots" href="#">Завершенные лоты пользоваеля</a></li>
+                    <li style="margin-left:-15px;"><a id="userPendingLots" href="#">Ожидающие лоты пользователя</a></li>
+                    <li role="separator" class="divider"></li>
+                    <li style="margin-left:-15px;"><a id="userParticipatingLots" href="#">Лоты, в которых пользователь учавствует</a></li>
+                    <li style="margin-left:-15px;"><a id="userWonLots" href="#">Лоты, в которых пользователь выиграл</a></li>
+
+                </ul>
+            </div>
+            <div class="btn-group" style="width:100%;">
+                <button id="Reviews" type="button" class="btn btn-danger" style="float:left; width:80%;">Отзывы</button>
+                <button type="button" class="btn btn-danger dropdown-toggle" style="float:left; width:20%;" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                    <span class="caret"></span>
+                    <span class="sr-only">Toggle Dropdown</span>
+                </button>
+                <ul class="dropdown-menu" style="width:100%;">
+                    <li><a id="positiveReviews" href="#">Положительные отзывы</a></li>
+                    <li><a id="negativeReviews" href="#">Отрицательные отзывы</a></li>
+
+                </ul>
+            </div>
+        </div>
+        <div style="margin-left:10px;" class="col-md-2">
+            <strong style="font-size:30px;">@Model.UserName</strong>
+            <br />
+            <img src="https://drive.google.com/uc?export=view&id=11iP5j2VBCGsXQy9TboST4opI48f3x5m3"><strong style="font-size:20px;">@Model.PositiveReview</strong>
+            <img style="margin-left:5px;" src="https://drive.google.com/uc?export=view&id=1YkD8vwNgpMfAsenQYcTDwS7VKJArmzrf"><strong style="font-size:20px;">@Model.NegativeReview</strong>
+            <br />
+            <br />
+            @{
+                double perc = (Model.PositiveReview + Model.NegativeReview) / Model.PositiveReview * 100; ;
+            }
+            <p style="font-size:17px; margin-bottom:20px;">@perc.ToString()%  положительных отзывов</p>
+            <p style="font-size:17px;">Пол: @Model.Gender</p>
+            <p style="font-size:17px;">@Model.UserLocation</p>
+            <a id="addReview" ; style="margin-top:20px;" class="btn btn-info" role="button">Оставить отзыв</a>
+            <div id="reviewModal" class="modal fade" role="dialog">
+                <div class="modal-dialog">
+                    <!-- Modal content-->
+
+                    <div id="modalContent" class="modal-content">
+                        <div style="margin-left:20px;  margin-right:20px;">
+                            <br />
+                            <strong style="font-size:20px; ">Оставить отзыв о пользователе @Model.UserName:</strong>
+                            <hr style="margin-left:-20px;" />
+                            <div>
+                                <p>Тип отзыва:</p>
+                                <div class="checkbox">
+                                    <label><input id="checkPositive" type="checkbox" checked value="">Положительный</label>
+                                </div>
+                                <div class="checkbox">
+                                    <label><input id="checkNegative" type="checkbox" value="">Отрицательный</label>
+                                </div>
+                                <div class="form-group">
+                                    <label for="newReview">Отзыв:</label>
+                                    <textarea class="form-control" rows="5" cols="60" id="newReview"></textarea>
+                                    <button type="button" style="float:right; margin-top:15px;" class="btn btn-info" onclick="sendReview()"><span style="color:white;">Отправить</span></button>
+
+                                </div>
+                            </div>
+                            <div id="ErrorContainer" style="float:left; margin-left:0;"></div>
+                        </div>
+                        <div style="margin-top:60px;" class="modal-footer">
+                            <button type="button" class="btn btn-danger" data-dismiss="modal"><span style="color:white;">Закрыть</span></button>
+                        </div>
+                    </div>
+
+                </div>
+
+            </div>
+
+        </div>
+        <div style="margin-left:10px;" class="col-md-3">
+            <p><strong style="font-size:20px; margin-bottom:40px">Контактные данные:</strong></p>
+
+            <p style="font-size:17px; margin-bottom:20px;">Телефон: <strong style="font-size:19px;">@Model.TelephoneNumber</strong></p>
+            <p style="font-size:17px; margin-bottom:20px;">Электронная почта: <strong style="font-size:19px;">@Model.Email</strong></p>
+
+
+        </div>
+    </div>
+</div>
+<hr />
+<div id="content-panel" style="margin-top:10px;" class="row">
+
+</div>
+<style>
+    [type="file"] {
+        position: absolute;
+        top: -16rem;
+        opacity: 0;
+    }
+</style>
+<script>
+
+    $(function () {
+
+        $("#addReview").click(function () {
+            $("#ErrorContainer").empty();
+          $('#reviewModal').modal('show');
+       })
+
+       
+    });
+
+
+         function sendReview() {
+             var userId = $('#userId').text();
+             var newReview = $('#newReview').val();
+             console.log(newReview);
+             var isPositive;
+             if ($('#checkPositive').prop('checked')) { isPositive = true; }
+             else { isPositive = false;}
+                            $.ajax({
+                                type: 'POST',
+                                data: { userId: userId, newReview: newReview, isPositive: isPositive},
+                                url: '@Url.Action("AddReview", "Account" ,new { userId = "userId", newReview = "newReview", isPositive="isPositive" })',
+                                success: function (data) {
+                                    $("#ErrorContainer").empty();
+                                    if (data.IsSuccess) {
+                                        $('#reviewModal').modal('hide');
+                                    }
+                                    else {
+                                        var error = '<br/><span style="float:left;font-size:18px; color:red;">' + data.Error + '</span>';
+                                        $('#ErrorContainer').append(error);
+                                    }
+                                }
+                            });
+         }
+
+
+          $('#Reviews').click(function () {
+            $('#content-panel').empty();
+            var userId = $('#userId').text();
+            $.ajax({
+                type: 'GET',
+                data: { userId: userId },
+                url: '@Url.Action("ManageGetReviews","Manage", new {state= "all", userId="userId" })',
+                success: function (data) {
+                    $('#content-panel').empty();
+                    $('#content-panel').html(data);
+                }
+            })
+        })
+
+        $('#positiveReviews').click(function () {
+            $('#content-panel').empty();
+            var userId = $('#userId').text();
+            $.ajax({
+                type: 'GET',
+                data: { userId: userId },
+                url: '@Url.Action("ManageGetReviews","Manage", new {state= "positive", userId="userId" })',
+                success: function (data) {
+                    $('#content-panel').empty();
+                    $('#content-panel').html(data);
+                }
+            })
+        })
+
+        $('#negativeReviews').click(function () {
+            $('#content-panel').empty();
+            var userId = $('#userId').text();
+            $.ajax({
+                type: 'GET',
+                data: { userId: userId },
+                url: '@Url.Action("ManageGetReviews","Manage", new {state= "negative", userId="userId" })',
+                success: function (data) {
+                    $('#content-panel').empty();
+                    $('#content-panel').html(data);
+                }
+            })
+        })
+
+
+        $('#userStartedLots').click(function () {
+            $('#content-panel').empty();
+            var userId = $('#userId').text();
+            console.log(userId);
+            var state = 'userStarted';
+            console.log(userId);
+            $.ajax({
+                type: 'GET',
+                data: { userId: userId, state: state },
+                url: '@Url.Action("ManageGetLots","Lot", new {state= "userStarted", userId="userId" })',
+                success: function (data) {
+                    $('#content-panel').empty();
+                    $('#content-panel').html(data);
+                }
+            })
+    })
+
+        $('#checkNegative').change(function () {
+            if ($('#checkNegative').prop("checked") == true) {
+                $('#checkPositive').prop('checked', false);
+            }
+            else {
+                $('#checkPositive').prop('checked', true);
+
+            }
+        })
+
+        $('#checkPositive').change(function () {
+            if ($('#checkPositive').prop("checked") == true) {
+                $('#checkNegative').prop('checked', false);
+            }
+            else {
+                $('#checkNegative').prop('checked', true);
+
+            }
+        })
+
+        $('#userFinishedLots').click(function () {
+            $('#content-panel').empty();
+
+            var userId = $('#userId').text();
+            var state = 'e';
+            console.log(userId);
+            console.log(userId);
+            $.ajax({
+                type: 'GET',
+                data: { userId: userId, state: state },
+                url: '@Url.Action("ManageGetLots","Lot", new {state= "userFinished", userId="userId" })',
+                success: function (data) {
+                    $('#content-panel').empty();
+                    $('#content-panel').html(data);
+                }
+            })
+        })
+
+        $('#userPendingLots').click(function () {
+            $('#content-panel').empty();
+            var userId = $('#userId').text();
+            var state = 'e';
+            console.log(userId);
+            console.log(userId);
+            $.ajax({
+                type: 'GET',
+                data: { userId: userId, state: state },
+                url: '@Url.Action("ManageGetLots","Lot", new {state= "userPending", userId="userId" })',
+                success: function (data) {
+                    $('#content-panel').empty();
+                    $('#content-panel').html(data);
+                }
+            })
+        })
+
+        $('#userParticipatingLots').click(function () {
+            $('#content-panel').empty();
+            var userId = $('#userId').text();
+            var state = 'e';
+            console.log(userId);
+            console.log(userId);
+            $.ajax({
+                type: 'GET',
+                data: { userId: userId, state: state },
+                url: '@Url.Action("ManageGetLots","Lot", new {state= "userParticipating", userId="userId" })',
+                success: function (data) {
+                    $('#content-panel').empty();
+                    $('#content-panel').html(data);
+                }
+            })
+        })
+
+        $('#userWonLots').click(function () {
+            $('#content-panel').empty();
+            var userId = $('#userId').text();
+            var state = 'e';
+            console.log(userId);
+            console.log(userId);
+            $.ajax({
+                type: 'GET',
+                data: { userId: userId, state: state },
+                url: '@Url.Action("ManageGetLots","Lot", new {state= "userWon", userId="userId" })',
+                success: function (data) {
+                    $('#content-panel').empty();
+                    $('#content-panel').html(data);
+                }
+            })
+        })
+
+        $('#userLots').click(function () {
+            $('#content-panel').empty();
+            var userId = $('#userId').text();
+            var state = 'e';
+            console.log(userId);
+            console.log(userId);
+            $.ajax({
+                type: 'GET',
+                data: { userId: userId, state: state },
+                url: '@Url.Action("ManageGetLots","Lot", new {state= "user", userId="userId" })',
+                success: function (data) {
+                    $('#content-panel').empty();
+                    $('#content-panel').html(data);
+                }
+            })
+        })
+
+        getLots = function(userId, state) {
+             $.ajax({
+                type: 'GET',
+                data: { userId: userId, state: state },
+                url: '@Url.Action("ManageGetLots","Lot", new {userId="userId", state="state" })',
+                success: function (data) {
+                    $('content-panel').empty();
+                    $('content-panel').html(data);
+                }
+            })
+        }
+
+       
+</script>

@@ -19,13 +19,13 @@ namespace SOOS_Auction.AuctionDatabase.Shared
         static public bool isDatabaseEmpty(this AuctionContext context)
         {
             if (!context.Database.Exists()) { context.Database.Create(); return true; }
-            if (isLotsTableEmpty(context) && isBidsTableEmpty(context) && isLotsReceivingTableEmpty(context) && isCategoriesTableEmpty(context)&& isSectionsTableEmpty(context))
+            if (isLotsTableEmpty(context) && isBidsTableEmpty(context) && isLotsReceivingTableEmpty(context) && isCategoriesTableEmpty(context)&& isSectionsTableEmpty(context)&& isReviewsTableEmpty(context))
                 return true;
             return false;
         }
         //
         /// <summary>
-        /// is Areas table contains data
+        /// is Lots table contains data
         /// </summary>
         /// <param name="context"></param>
         /// <returns></returns>
@@ -35,7 +35,17 @@ namespace SOOS_Auction.AuctionDatabase.Shared
             if (context.Lots.ToList().Count == 0) return true;
             return false;
         }
-
+        /// <summary>
+        /// is Areas table contains data
+        /// </summary>
+        /// <param name="context"></param>
+        /// <returns></returns>
+        static public bool isReviewsTableEmpty(AuctionContext context)
+        {
+            if (!context.Database.Exists()) { context.Database.Create(); return true; }
+            if (context.Reviews.ToList().Count == 0) return true;
+            return false;
+        }
         /// <summary>
         /// is Bids table contains data
         /// </summary>

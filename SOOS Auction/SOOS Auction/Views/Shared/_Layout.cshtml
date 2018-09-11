@@ -3,31 +3,162 @@
 <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>@ViewBag.Title - My ASP.NET Application</title>
+    <title>@ViewBag.Title - SOOS Auction</title>
     @Styles.Render("~/Content/css")
     @Scripts.Render("~/bundles/modernizr")
 
 </head>
+
 <body>
 
     <script src="http://ajax.googleapis.com/ajax/libs/jquery/1.7.1/jquery.min.js" type="text/javascript"></script>
+    <script src="~/Scripts/script.js" type="text/javascript"></script>
+
 
 
     <div class="navbar navbar-inverse navbar-fixed-top">
         <div class="container-fluid">
             <div class="navbar-header">
-                <button type="button" class="navbar-toggle" data-toggle="collapse"data-target=".navbar-collapse">
+                <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-collapse">
                     <span class="icon-bar"></span>
                     <span class="icon-bar"></span>
                     <span class="icon-bar"></span>
                 </button>
-                @Html.ActionLink("SOOS Auction", "Index", "Home", new { area = "" }, new { @class = "navbar-brand" })
+                @Html.ActionLink("SOOS Auction", "Index", "Lot", new { area = "" }, new { @class = "navbar-brand" })
             </div>
             <div class="navbar-collapse collapse">
                 <ul class="nav navbar-nav">
-                    <li>@Html.ActionLink("Лоты", "Index", "Lots")</li>
-                    <li>@Html.ActionLink("О сайте", "About", "Home")</li>
-                    <li>@Html.ActionLink("Связь", "Contact", "Home")</li>
+                    <li>@Html.ActionLink("Лоты", "Index", "Lot")</li>
+                    <li class="dropdown dropdown-menu-left">
+                        <a href="#" class="dropdown-toggle lotBar-sections" data-toggle="dropdown">Все разделы<b class="caret"></b></a>
+                        <ul class="dropdown-menu dropdown-content">
+                            <li>
+                                <a href="@Url.Action("BySection", new { sectionId= 1})">Телефоны. Смартфоны</a>
+                                <ul class="dropdown-menu sub-menu">
+                                    <li><a href="@Url.Action("ByCategory", new { categoryId= 1})">Мобильные телефоны</a></li>
+                                    <li><a href="@Url.Action("ByCategory", new { categoryId= 2})">Мобильные телефоны: Аксессуары и запчасти</a></li>
+                                    <li><a href="@Url.Action("ByCategory", new { categoryId= 3})">Радиотелефоны, DECT  и Проводные телефоны</a></li>
+                                    <li><a href="@Url.Action("ByCategory", new { categoryId= 4})0">Другое</a></li>
+
+                                </ul>
+                            </li>
+                            <li>
+                                <a href="@Url.Action("BySection", new { sectionId= 2})">Ноутбуки. Компьютеры. Apple. Оргтехника</a>
+                                <ul class="dropdown-menu sub-menu">
+                                    <li><a href="@Url.Action("ByCategory", new { categoryId= 5})">Ноутбуки</a></li>
+                                    <li><a href="@Url.Action("ByCategory", new { categoryId= 6})">Планшеты и электронные книги</a></li>
+                                    <li><a href="@Url.Action("ByCategory", new { categoryId= 7})">Apple. Mac, iPod, iPhone, iPad</a></li>
+                                    <li><a href="@Url.Action("ByCategory", new { categoryId= 8})">Apple: запчасти и аксессуары</a></li>
+                                    <li><a href="@Url.Action("ByCategory", new { categoryId= 9})">Материнские платы. Процессоры. Оперативная память</a></li>
+                                    <li><a href="@Url.Action("ByCategory", new { categoryId= 10})">Видеокарты</a></li>
+                                    <li><a href="@Url.Action("ByCategory", new { categoryId= 11})">Корпуса. Блоки питания. ИБП. Системы охлаждения. Моддинг</a></li>
+                                    <li><a href="@Url.Action("ByCategory", new { categoryId= 12})">Мониторы. Проекторы</a></li>
+                                    <li><a href="@Url.Action("ByCategory", new { categoryId= 13})">Акустика. Клавиатуры. Мыши. Аксессуары.</a></li>
+                                    <li><a href="@Url.Action("ByCategory", new { categoryId= 14})">Сетевое оборудование. Модемы. WI-FI</a></li>
+                                    <li><a href="@Url.Action("ByCategory", new { categoryId= 15})">Принтеры. МФУ. Офисная техника</a></li>
+                                    <li><a href="@Url.Action("ByCategory", new { categoryId= 16})">Радиотехника и электроника</a></li>
+                                    <li><a href="@Url.Action("ByCategory", new { categoryId= 17})">Другое</a></li>
+                                </ul>
+                            </li>
+                            <li>
+                                <a href="@Url.Action("BySection", new { sectionId= 3})">Фото. Аудио. Видео. Приставки</a>
+                                <ul class="dropdown-menu sub-menu">
+                                    <li><a href="@Url.Action("ByCategory", new { categoryId= 18})">Фотоаппараты</a></li>
+                                    <li><a href="@Url.Action("ByCategory", new { categoryId= 19})">Фотоаксессуары. Объективы</a></li>
+                                    <li><a href="@Url.Action("ByCategory", new { categoryId = 20 })">Видеокамеры. Аксессуары</a></li>
+                                    <li><a href="@Url.Action("ByCategory", new { categoryId= 21})">MP-3 плееры и Портативная аудио/видео-техника. Наушники.</a></li>
+                                    <li><a href="@Url.Action("ByCategory", new { categoryId= 22})">Спутниковое телевидение</a></li>
+                                    <li><a href="@Url.Action("ByCategory", new { categoryId= 23})">Телевизоры</a></li>
+                                    <li><a href="@Url.Action("ByCategory", new { categoryId= 24})">Игровые приставки</a></li>
+                                    <li><a href="@Url.Action("ByCategory", new { categoryId= 25})">Другое</a></li>
+                                </ul>
+                            </li>
+                            <li>
+                                <a href="@Url.Action("BySection", new { sectionId= 4})">Авто. Мото</a>
+                                <ul class="dropdown-menu sub-menu">
+                                    <li><a href="@Url.Action("ByCategory", new { categoryId= 26})">Грузовые автомобили и прицепы</a></li>
+                                    <li><a href="@Url.Action("ByCategory", new { categoryId= 27})">Спец. техника. Трактора</a></li>
+                                    <li><a href="@Url.Action("ByCategory", new { categoryId= 28})">Автобусы</a></li>
+                                    <li><a href="@Url.Action("ByCategory", new { categoryId= 29})">Водный транспорт</a></li>
+                                    <li><a href="@Url.Action("ByCategory", new { categoryId= 30})">Мотозапчасти. мотоаксессуары</a></li>
+                                    <li><a href="@Url.Action("ByCategory", new { categoryId= 31})">Другое</a></li>
+                                </ul>
+                            </li>
+                            <li>
+                                <a href="@Url.Action("BySection", new { sectionId= 5})">Автозапчасти и автоаксессуары</a>
+                                <ul class="dropdown-menu sub-menu">
+                                    <li><a href="@Url.Action("ByCategory", new { categoryId= 32})">Расходники</a></li>
+                                    <li><a href="@Url.Action("ByCategory", new { categoryId= 33})">Двигатели. Система пуска и зарядки. Система зажигания</a></li>
+                                    <li><a href="@Url.Action("ByCategory", new { categoryId= 34})">Система охлаждения, отопления, вентиляции</a></li>
+                                    <li><a href="@Url.Action("ByCategory", new { categoryId= 35})">Топливная система. Система спуска</a></li>
+                                    <li><a href="@Url.Action("ByCategory", new { categoryId= 36})">Сцепление. Коробка передач. Привод</a></li>
+                                    <li><a href="@Url.Action("ByCategory", new { categoryId= 37})">Подвеска. Рулевое управление</a></li>
+                                    <li><a href="@Url.Action("ByCategory", new { categoryId= 38})">Тормозная система.</a></li>
+                                    <li><a href="@Url.Action("ByCategory", new { categoryId= 39})">Автомобильная оптика. Тюнинг. Автосигнализация</a></li>
+                                    <li><a href="@Url.Action("ByCategory", new { categoryId= 40})">Шины и диски</a></li>
+                                    <li><a href="@Url.Action("ByCategory", new { categoryId= 41})">Аккумуляторы</a></li>
+                                    <li><a href="@Url.Action("ByCategory", new { categoryId = 42 })">GPS навигаторы</a></li>
+                                    <li><a href="@Url.Action("ByCategory", new { categoryId= 43})">Видеорегистраторы</a></li>
+                                    <li><a href="@Url.Action("ByCategory", new { categoryId= 44})">Другое</a></li>
+                                </ul>
+                            </li>
+                            <li>
+                                <a href="@Url.Action("BySection", new { sectionId= 6})">Дом. Дача</a>
+                                <ul class="dropdown-menu sub-menu">
+                                    <li><a href="@Url.Action("ByCategory", new { categoryId= 45})">Шкафы. Комоды. Горки. Секции. Полки</a></li>
+                                    <li><a href="@Url.Action("ByCategory", new { categoryId= 46})">Диваны. Кресла. Мягкая мебель.</a></li>
+                                    <li><a href="@Url.Action("ByCategory", new { categoryId= 47})">Столы. Стулья. Тумбы</a></li>
+                                    <li><a href="@Url.Action("ByCategory", new { categoryId= 48})">Кровати. Матрасы. Мебель для спальни</a></li>
+                                    <li><a href="@Url.Action("ByCategory", new { categoryId= 49})">Кухни и кухонная мебель</a></li>
+                                    <li><a href="@Url.Action("ByCategory", new { categoryId= 50})">Мебель для детской комнаты</a></li>
+                                    <li><a href="@Url.Action("ByCategory", new { categoryId= 51})">Мебель для ванной</a></li>
+                                    <li><a href="@Url.Action("ByCategory", new { categoryId= 52})">Офисная мебель</a></li>
+                                    <li><a href="@Url.Action("ByCategory", new { categoryId= 53})">Элементы интерьера. Дизайн</a></li>
+                                    <li><a href="@Url.Action("ByCategory", new { categoryId= 54})">Посуда и кухонные принадлежности</a></li>
+                                    <li><a href="@Url.Action("ByCategory", new { categoryId= 55})">Бытовая техника</a></li>
+                                    <li><a href="@Url.Action("ByCategory", new { categoryId= 56})">Растения. Дача. Сад и огород. Ландшафтный дизайн</a></li>
+                                    <li><a href="@Url.Action("ByCategory", new { categoryId= 57})">Газонокосилки. Триммеры. Кусторезы</a></li>
+                                    <li><a href="@Url.Action("ByCategory", new { categoryId= 58})">Другое</a></li>
+                                </ul>
+                            </li>
+                            <li>
+                                <a href="@Url.Action("BySection", new { sectionId=7})">Коллекционирование</a>
+                                <ul class="dropdown-menu sub-menu">
+                                    <li><a href="@Url.Action("ByCategory", new { categoryId= 59})">Медали. Жетоны. Значки</a></li>
+                                    <li><a href="@Url.Action("ByCategory", new { categoryId= 60})">Банкноты. Ценные бумаги</a></li>
+                                    <li><a href="@Url.Action("ByCategory", new { categoryId= 61})">Военные вещи</a></li>
+                                    <li><a href="@Url.Action("ByCategory", new { categoryId= 62})">Марки</a></li>
+                                    <li><a href="@Url.Action("ByCategory", new { categoryId= 63})">Модели. Фигурки</a></li>
+                                    <li><a href="@Url.Action("ByCategory", new { categoryId= 64})">Аксессуары</a></li>
+                                    <li><a href="@Url.Action("ByCategory", new { categoryId= 65})">Другое</a></li>
+                                </ul>
+                            </li>
+                            <li>
+                                <a href="@Url.Action("BySection", new { sectionId= 8})">Одежда. Обувь. Аксессуары.</a>
+                                <ul class="dropdown-menu sub-menu">
+                                    <li><a href="@Url.Action("ByCategory", new { categoryId= 66})">Женская одежда</a></li>
+                                    <li><a href="@Url.Action("ByCategory", new { categoryId= 67})">Женская обувь</a></li>
+                                    <li><a href="@Url.Action("ByCategory", new { categoryId= 68})">Мужская одежда</a></li>
+                                    <li><a href="@Url.Action("ByCategory", new { categoryId= 69})">Детская одежда</a></li>
+                                    <li><a href="@Url.Action("ByCategory", new { categoryId= 70})">Детская обувь</a></li>
+                                    <li><a href="@Url.Action("ByCategory", new { categoryId= 71})">Головные уборы</a></li>
+                                    <li><a href="@Url.Action("ByCategory", new { categoryId= 72})">Бижутерия</a></li>
+                                    <li><a href="@Url.Action("ByCategory", new { categoryId= 73})">Наручные часы</a></li>
+                                    <li><a href="@Url.Action("ByCategory", new { categoryId= 74})">Аксессуары</a></li>
+                                    <li><a href="@Url.Action("ByCategory", new { categoryId= 75})">Старинная одежда. Винтаж</a></li>
+                                    <li><a href="@Url.Action("ByCategory", new { categoryId= 76})">Другое</a></li>
+                                </ul>
+                            </li>
+                        </ul>
+                    </li>
+
+                        <li>
+
+                            <form class="navbar-form" action="~/Lot/Search">
+                                <input type="text" name="searchText" class="form-control" placeholder="Поиск по названию лота">
+                                <button type="submit" class="btn btn-default"><span class="glyphicon glyphicon-search"></span></button>
+                            </form>
+                        </li>
                 </ul>
                 @Html.Partial("_LoginPartial")
             </div>
@@ -35,12 +166,6 @@
     </div>
     <div class="">
         @RenderBody()
-        <div>
-            <hr />
-            <footer style="margin-left:10px;">
-                <p>&copy; @DateTime.Now.Year - SOOS Auction</p>
-            </footer>
-        </div>
     </div>
 
     @Scripts.Render("~/bundles/jquery")
@@ -48,3 +173,49 @@
     @RenderSection("scripts", required: false)
 </body>
 </html>
+<style>
+    .lotBar-contaner ul li a {
+        font-size: 14px;
+    }
+
+    .lotBar-sections {
+        color: black;
+        text-decoration: dashed;
+    }
+
+    .dropdown-content {
+        display: none;
+        position: absolute;
+        min-width: 160px;
+        z-index: 1;
+    }
+
+        .dropdown-content li a {
+            color: black;
+            text-decoration: none;
+            display: block;
+        }
+
+            .dropdown-content li a:hover {
+                background-color: #ddd;
+            }
+
+    .dropdown:hover .dropdown-content {
+        display: block;
+    }
+    .dropdown-menu .sub-menu {
+        left: 100%;
+        position: absolute;
+        top: 0;
+        visibility: hidden;
+        margin-top: -1px;
+    }
+
+    .dropdown-menu li:hover .sub-menu {
+        visibility: visible;
+    }
+
+    .dropdown:hover .dropdown-menu {
+        display: block;
+    }
+</style>

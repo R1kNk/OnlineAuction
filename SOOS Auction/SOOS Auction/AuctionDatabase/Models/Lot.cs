@@ -23,6 +23,9 @@ namespace SOOS_Auction.AuctionDatabase.Models
         [Required]
         public string UserId { get; set; }
 
+        [Required]
+        public string Location { get; set; }
+
         public string WinnerId { get; set; }
 
         [Required]
@@ -51,6 +54,9 @@ namespace SOOS_Auction.AuctionDatabase.Models
         public string ImagesUrl { get; set; }
 
         public List<Bid> Bids { get; set; }
+
+        [Required]
+        public bool isPaymentBySite { get; set; }
 
         [Required]
         public virtual LotReceiving LotReceiving { get; set; }

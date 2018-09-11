@@ -18,8 +18,6 @@ namespace SOOS_Auction.AuctionDatabase.Models
         [Required]
         public bool FullPrepaymentPostSending { get; set; }
 
-        public string AdditionalInformation { get; set; }
-
         public virtual Lot Lot { get; set; }
     }
 }

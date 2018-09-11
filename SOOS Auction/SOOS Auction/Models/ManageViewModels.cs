@@ -14,12 +14,35 @@ namespace SOOS_Auction.Models
         public bool BrowserRemembered { get; set; }
         public string UserName { get; set; }
 
+        public string UserId { get; set; }
+        public string Email { get; set; }
         public string Gender { get; set; }
         public string TelephoneNumber { get; set; }
         public string AvatarUrl { get; set; }
         public int PositiveReview { get; set; }
         public int NegativeReview { get; set; }
         public string UserLocation { get; set; }
+        public string Balance { get; set; }
+        public string BusyBalance { get; set; }
+        public string FreeBalance { get; set; }
+    }
+
+    public class AddBalanceModel
+    {
+        public bool isSuccess { get; set; }
+        public string Balance { get; set; }
+        public string BusyBalance { get; set; }
+        public string FreeBalance { get; set; }
+        public string Error { get; set; }
+    }
+
+    public class ReviewModel
+    {
+        public string UserFromId { get; set; }
+        public string UserFromUsername { get; set;}
+        public bool isPositive { get; set; }
+        public string UserFromAvatarUrl { get; set; }
+        public string Text { get; set; }
     }
 
     public class ManageLoginsViewModel
@@ -51,17 +74,17 @@ namespace SOOS_Auction.Models
     {
         [Required]
         [DataType(DataType.Password)]
-        [Display(Name = "Current password")]
+        [Display(Name = "Текущий пароль")]
         public string OldPassword { get; set; }
 
         [Required]
         [StringLength(100, ErrorMessage = "The {0} must be at least {2} characters long.", MinimumLength = 6)]
         [DataType(DataType.Password)]
-        [Display(Name = "New password")]
+        [Display(Name = "Новый пароль")]
         public string NewPassword { get; set; }
 
         [DataType(DataType.Password)]
-        [Display(Name = "Confirm new password")]
+        [Display(Name = "Повторите новый пароль")]
         [Compare("NewPassword", ErrorMessage = "The new password and confirmation password do not match.")]
         public string ConfirmPassword { get; set; }
     }

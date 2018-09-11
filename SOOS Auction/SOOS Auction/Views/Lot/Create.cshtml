@@ -273,36 +273,6 @@
     </div>
 
     <div class="form-group">
-        @Html.LabelFor(model => model.Cash, htmlAttributes: new { @class = "control-label col-md-2" })
-        <div class="col-md-6">
-            <div class="checkbox">
-                @Html.EditorFor(model => model.Cash)
-                @Html.ValidationMessageFor(model => model.Cash, "", new { @class = "text-danger" })
-            </div>
-        </div>
-    </div>
-
-    <div class="form-group">
-        @Html.LabelFor(model => model.NonCash, htmlAttributes: new { @class = "control-label col-md-2" })
-        <div class="col-md-6">
-            <div class="checkbox">
-                @Html.EditorFor(model => model.NonCash)
-                @Html.ValidationMessageFor(model => model.NonCash, "", new { @class = "text-danger" })
-            </div>
-        </div>
-    </div>
-
-    <div class="form-group">
-        @Html.LabelFor(model => model.FullPrepaymentPostSending, htmlAttributes: new { @class = "control-label col-md-2" })
-        <div class="col-md-6">
-            <div class="checkbox">
-                @Html.EditorFor(model => model.FullPrepaymentPostSending)
-                @Html.ValidationMessageFor(model => model.FullPrepaymentPostSending, "", new { @class = "text-danger" })
-            </div>
-        </div>
-    </div>
-
-    <div class="form-group">
         @Html.LabelFor(model => model.AdditionalInformation, htmlAttributes: new { @class = "control-label col-md-2" })
         <div class="col-md-6">
             @Html.TextAreaFor(model => model.AdditionalInformation, new { @placeholder = "Дополнительная информация о условиях и особенностях доставки (опционально)", @cols = "130", @rows = "5", htmlAttributes = new { @class = "form-control col-md-2" } })
@@ -310,7 +280,49 @@
         </div>
     </div>
 
-    <h3 style="margin-left:10px;" class="modal-title">Фотографии лота</h3>
+    <div class="form-group">
+        @Html.LabelFor(model => model.isPaymentBySite, htmlAttributes: new { @class = "control-label col-md-2" })
+        <div class="col-md-6">
+            <div class="checkbox">
+                @Html.CheckBoxFor(model => model.isPaymentBySite, htmlAttributes: new { @id = "isPaymentBySite" })
+                @Html.ValidationMessageFor(model => model.Cash, "", new { @class = "text-danger" })
+            </div>
+        </div>
+    </div>
+
+    <div class="form-group" id="cashContainer">
+        @Html.LabelFor(model => model.Cash, htmlAttributes: new { @class = "control-label col-md-2" })
+        <div class="col-md-6">
+            <div class="checkbox">
+                @Html.CheckBoxFor(model => model.Cash, htmlAttributes: new { @id = "isCash" })
+                @Html.ValidationMessageFor(model => model.Cash, "", new { @class = "text-danger" })
+            </div>
+        </div>
+    </div>
+
+    <div class="form-group" id="nonCashContainer">
+        @Html.LabelFor(model => model.NonCash, htmlAttributes: new { @class = "control-label col-md-2" })
+        <div class="col-md-6">
+            <div class="checkbox">
+                @Html.CheckBoxFor(model => model.NonCash, htmlAttributes: new { @id = "isNonCash" })
+                @Html.ValidationMessageFor(model => model.NonCash, "", new { @class = "text-danger" })
+            </div>
+        </div>
+    </div>
+
+    <div class="form-group" id="prepaymentContainer">
+        @Html.LabelFor(model => model.FullPrepaymentPostSending, htmlAttributes: new { @class = "control-label col-md-2" })
+        <div class="col-md-6">
+            <div class="checkbox">
+                @Html.CheckBoxFor(model => model.FullPrepaymentPostSending, htmlAttributes: new { @id = "isPrepayment" })
+                @Html.ValidationMessageFor(model => model.FullPrepaymentPostSending, "", new { @class = "text-danger" })
+            </div>
+        </div>
+    </div>
+
+    <div>
+        <h3 style="margin-left:45%;" class="modal-title">Фотографии лота</h3>
+        </div>
     <section id="inputSection">
         <figure></figure>
         <p>Загрузка файлов</p>
@@ -329,8 +341,8 @@
 
 </div>
     <div class="row">
-        <div class="form-group col-md-offset-6">
-            <input style="width:80px; height:50px;" type="submit" value="Create" class="btn btn-default" />
+        <div class="form-group col-md-2 col-md-offset-5">
+            <input style="width:100%; height:50px;" type="submit" value="Создать" class="btn btn-info" />
         </div>
     </div>
 }
@@ -339,7 +351,25 @@
     <script type="text/javascript">
 
         $(function () {
-            // Программное открытие окна выбора файла по щелчку
+            $('#isPaymentBySite').on('change', function () {
+                var state = $('#isPaymentBySite').prop('checked');
+                if (state == true) {
+                    $('#isCash').prop('checked', false);
+                    $('#isNonCash').prop('checked', false);
+                    $('#isPrepayment').prop('checked', false);
+                    $('#cashContainer').hide();
+                    $('#nonCashContainer').hide();
+                    $('#prepaymentContainer').hide();
+                }
+                else {
+                    $('#cashContainer').show();
+                    $('#nonCashContainer').show();
+                    $('#prepaymentContainer').show();
+                }
+                console.log(state);
+            });
+
+
             $('figure').on('click', function () {
                 $(':file').trigger('click');
 

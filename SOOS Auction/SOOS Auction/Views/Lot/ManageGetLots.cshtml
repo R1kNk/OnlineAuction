@@ -1,0 +1,30 @@
+﻿@model List<SOOS_Auction.Models.LotPreviewDetails>
+
+@foreach (var detail in Model)
+{
+    <div class="col-md-2 lotPreview" style="margin-left:50px; margin-bottom:50px;  ">
+        <div class="col-md-11 " style="position:center; border:2px solid #EEEEEE; -moz-border-radius: 10px; -webkit-border-radius: 10px; min-height:440px; max-height:600px;">
+            <img style="width:100%; height:200px; margin-bottom:10px; margin-top:5px;" src="https://drive.google.com/uc?export=view&id=@detail.ImageUrl" alt="Фото" />
+            <strong style="font-size:15px;">@detail.Name</strong>
+            <p style="font-size:12px;">Текущая цена: <strong style="font-size:14px;">@detail.CurrentPrice</strong> бел. руб.</p>
+            <p style="font-size:12px;">Состояние: <strong style="font-size:14px;">@detail.State</strong></p>
+            <p style="font-size:12px;">Дата окончания: <strong style="font-size:14px;">@detail.FinishDate</strong></p>
+            <p style="font-size:12px;">Местоположение: <strong style="font-size:14px;">@detail.Location</strong></p>
+            <p style="font-size:12px;">Оплата: <strong style="font-size:14px;">@detail.Payment</strong></p>
+        </div>
+        <a hidden href="@Url.Action("Details","Lot", new {id =detail.LotId })"></a>
+    </div>
+}
+
+
+<script>
+    $(".lotPreview").click(function () {
+        window.location = $(this).find("a").attr("href");
+        return false;
+    });
+</script>
+<style>
+    .lotPreview:hover {
+        cursor: pointer;
+    }
+</style>

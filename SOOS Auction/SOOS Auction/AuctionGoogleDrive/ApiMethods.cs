@@ -46,14 +46,18 @@ namespace SOOS_Auction.AuctionGoogleDrive
 
         public static List<string> GetFilesIDFromFolder(string folderId)
         {
-            var request = auctionServicev2.Children.List(folderId);
-            List<string> IDs = new List<string>();
-            var children = request.Execute();
-            if(children.Items!=null && children.Items.Count > 0)
+            try
             {
-                foreach(var file in children.Items) { IDs.Add(file.Id); }
+                var request = auctionServicev2.Children.List(folderId);
+                List<string> IDs = new List<string>();
+                var children = request.Execute();
+                if (children.Items != null && children.Items.Count > 0)
+                {
+                    foreach (var file in children.Items) { IDs.Add(file.Id); }
+                }
+                return IDs;
             }
-            return IDs;
+            catch(Exception e) { return null; }
             
         }
         public static string CreateFolder(int LotId)

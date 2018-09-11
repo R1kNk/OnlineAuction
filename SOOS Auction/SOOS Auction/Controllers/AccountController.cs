@@ -1,7 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Data.Entity;
 using System.Globalization;
+using System.IO;
 using System.Linq;
+using System.Net;
 using System.Security.Claims;
 using System.Threading.Tasks;
 using System.Web;
@@ -9,6 +12,8 @@ using System.Web.Mvc;
 using Microsoft.AspNet.Identity;
 using Microsoft.AspNet.Identity.Owin;
 using Microsoft.Owin.Security;
+using SOOS_Auction.AuctionDatabase.Models;
+using SOOS_Auction.AuctionGoogleDrive;
 using SOOS_Auction.Models;
 
 namespace SOOS_Auction.Controllers
@@ -60,12 +65,26 @@ namespace SOOS_Auction.Controllers
         //
         // GET: /Account/Login
         [AllowAnonymous]
-        public ActionResult Login(string returnUrl)
+        public ActionResult Login()
         {
-            ViewBag.ReturnUrl = returnUrl;
             return View();
         }
 
+        [HttpGet]
+        public JsonResult IsLogged()
+        {
+            if (HttpContext.User.Identity.IsAuthenticated) return Json("ok", JsonRequestBehavior.AllowGet);
+            return Json("no", JsonRequestBehavior.AllowGet);
+        }
+
+        [HttpGet]
+        [Authorize]
+        public JsonResult UpdateBalance()
+        {
+            var user = UserManager.FindById(User.Identity.GetUserId());
+            return Json("Свободный баланс: "+user.UnBusyBalance+" бел. руб.", JsonRequestBehavior.AllowGet);
+           
+        }
         //
         // POST: /Account/Login
         [HttpPost]
@@ -84,7 +103,7 @@ namespace SOOS_Auction.Controllers
             switch (result)
             {
                 case SignInStatus.Success:
-                    return RedirectToLocal(returnUrl);
+                    return RedirectToAction("Index","Lot");
                 case SignInStatus.LockedOut:
                     return View("Lockout");
                 case SignInStatus.RequiresVerification:
@@ -148,6 +167,62 @@ namespace SOOS_Auction.Controllers
             return View();
         }
 
+        [HttpPost]
+        [Authorize]
+        public JsonResult UploadAvatar()
+        {
+            string __filepath = Server.MapPath("~/uploads");
+            int __maxSize = 2 * 1024 * 1024;    // максимальный размер файла 2 Мб
+            // допустимые MIME-типы для файлов
+            List<string> mimes = new List<string>
+            {
+                "image/jpeg", "image/jpg", "image/png"
+            };
+
+            ChangeAvatarModel result = new ChangeAvatarModel();
+
+            if (Request.Files.Count > 0)
+            {
+                foreach (string f in Request.Files)
+                {
+                    HttpPostedFileBase file = Request.Files[f];
+
+                    // Выполнить проверки на допустимый размер файла и формат
+                    if (file.ContentLength > __maxSize)
+                    {
+                        result.Error = "Размер файла не должен превышать 2 Мб";
+                        result.IsSuccess = false;
+                        return Json(result);
+                    }
+                    else if (mimes.FirstOrDefault(m => m == file.ContentType) == null)
+                    {
+                        result.Error = "Недопустимый формат файла";
+                        result.IsSuccess = false;
+                        return Json(result);
+                    }
+
+                    // Сохранить файл и вернуть URL
+                    if (Directory.Exists(__filepath))
+                    {
+                        Guid guid = Guid.NewGuid();
+                            file.SaveAs($@"{__filepath}\{User.Identity.GetUserId()}.{guid}.title.avatar");
+                        string path = $@"{__filepath}\{User.Identity.GetUserId()}.{guid}.title.avatar";
+                        string mimeType = MimeMapping.GetMimeMapping(path);
+                       string urlId = FileApiMethods.Upload(path, path, mimeType);
+                        FileApiMethods.MakeFilePublic(urlId);
+                        result.AvatarUrl = urlId;
+                        result.IsSuccess = true;
+                        ApplicationUser current = UserManager.FindById(HttpContext.User.Identity.GetUserId());
+                        current.AvatarUrl = result.AvatarUrl;
+                        UserManager.Update(current);
+                        return Json(result);
+                    }
+                }
+            }
+
+            return Json(result);
+        }
+
         //
         // POST: /Account/Register
         [HttpPost]
@@ -157,7 +232,7 @@ namespace SOOS_Auction.Controllers
         {
             if (ModelState.IsValid)
             {
-                var user = new ApplicationUser { UserName = model.UserName, Email = model.Email, TelephoneNumber = model.TelephoneNumber, Gender = model.Gender, UserLocation = model.UserLocation, PositiveReview = 0, NegativeReview = 0 };
+                var user = new ApplicationUser { UserName = model.UserName, Email = model.Email, TelephoneNumber = model.TelephoneNumber, Gender = model.Gender, UserLocation = model.UserLocation, PositiveReview = 0, NegativeReview = 0, Balance=0.0, BusyBalance=0.0 };
                 var result = await UserManager.CreateAsync(user, model.Password);
                 if (result.Succeeded)
                 {
@@ -305,6 +380,80 @@ namespace SOOS_Auction.Controllers
             return View(new SendCodeViewModel { Providers = factorOptions, ReturnUrl = returnUrl, RememberMe = rememberMe });
         }
 
+        [Authorize]
+        [HttpPost]
+        public JsonResult AddBalance(string userId, string addBalance)
+        {
+            AddBalanceModel newAddBalanceResult = new AddBalanceModel();
+            if (!HttpContext.User.Identity.IsAuthenticated) { newAddBalanceResult.Error = "authError"; return Json(newAddBalanceResult); }
+
+            double newAddBalance;
+            try
+            {
+                newAddBalance = (float)Convert.ToDouble(addBalance);
+            }
+            catch (FormatException e) { newAddBalanceResult.Error = "Введите корректную величину пополнения!"; return Json(newAddBalanceResult); }
+            if (newAddBalance <= 0) { newAddBalanceResult.Error = "Величина пополнения должна быть больше нуля!"; return Json(newAddBalanceResult); }
+            ApplicationUser thisUser = UserManager.FindById(HttpContext.User.Identity.GetUserId());
+            thisUser.Balance += newAddBalance;
+            UserManager.Update(thisUser);
+            newAddBalanceResult.isSuccess = true;
+            newAddBalanceResult.Balance = Math.Round(thisUser.Balance,2).ToString() + " бел. руб.";
+            newAddBalanceResult.BusyBalance = Math.Round(thisUser.BusyBalance,2).ToString() + " бел. руб.";
+            newAddBalanceResult.FreeBalance = thisUser.UnBusyBalance.ToString() + " бел. руб.";
+            return Json(newAddBalanceResult);
+        }
+
+        [Authorize]
+        [HttpPost]
+        public JsonResult AddReview(string userId, string newReview, bool isPositive)
+        {
+            AddReviewModel addReviewResponse = new AddReviewModel();
+            addReviewResponse.IsSuccess = false;
+            if (!HttpContext.User.Identity.IsAuthenticated) { addReviewResponse.Error = "authError"; addReviewResponse.IsSuccess = false; return Json(addReviewResponse); }
+            if (newReview == null||newReview=="") { addReviewResponse.Error = "Поле отзыва должно быть заполнено"; addReviewResponse.IsSuccess = false; return Json(addReviewResponse); }
+            UserReview review = new UserReview();
+            review.date = DateTime.Now;
+            if (isPositive) { review.isNegative = false; review.isPositive = true; }
+            else { review.isNegative = true; review.isPositive = false; }
+            review.State = "pending";
+            review.Text = newReview;
+            ApplicationUser reviewedUser = UserManager.FindById(userId);
+            if(reviewedUser==null) { addReviewResponse.Error = "Такого пользователя не существует!"; addReviewResponse.IsSuccess = false; return Json(addReviewResponse); }
+            review.UserId = reviewedUser.Id;
+            review.UserIdFrom = HttpContext.User.Identity.GetUserId();
+            review.Review = "";
+            AuctionContext context = new AuctionContext();
+            List<UserReview> userReviews = context.Reviews.ToList();
+            context.Entry(review).State = EntityState.Added;
+            context.SaveChanges();
+            addReviewResponse.IsSuccess = true;
+            return Json(addReviewResponse);
+        }
+
+        public ActionResult ViewProfile(string userId)
+        {
+            ApplicationUser profileUser = UserManager.Users.Where(p => p.Id == userId).SingleOrDefault();
+            if (profileUser == null) return new HttpStatusCodeResult(HttpStatusCode.NotFound);
+            if (profileUser.Id == HttpContext.User.Identity.GetUserId()) return RedirectToAction("Index", "Manage");
+            var model = new IndexViewModel
+            {
+               
+                UserName = profileUser.UserName,
+                Gender = profileUser.Gender,
+                AvatarUrl = profileUser.AvatarUrl,
+                UserLocation = profileUser.UserLocation,
+                TelephoneNumber = profileUser.TelephoneNumber,
+                PositiveReview = profileUser.PositiveReview,
+                NegativeReview = profileUser.NegativeReview,
+                Email = profileUser.Email,
+                UserId = profileUser.Id
+            };
+            return View(model);
+        }
+
+        
+
         //
         // POST: /Account/SendCode
         [HttpPost]
@@ -350,6 +499,7 @@ namespace SOOS_Auction.Controllers
                 default:
                     // If the user does not have an account, then prompt the user to create an account
                     ViewBag.ReturnUrl = returnUrl;
+                    ViewBag.LoginProvider = loginInfo.Login.LoginProvider;
                     ViewBag.LoginProvider = loginInfo.Login.LoginProvider;
                     return View("ExternalLoginConfirmation", new ExternalLoginConfirmationViewModel { Email = loginInfo.Email });
             }

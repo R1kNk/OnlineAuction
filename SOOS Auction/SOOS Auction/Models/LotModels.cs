@@ -12,7 +12,7 @@ namespace SOOS_Auction.Models
     {
         [Required]
         [Display(Name="Краткая информация о лоте")]
-        [MaxLength(30)]
+        [MaxLength(50)]
         public string Name { get; set; }
 
         [Required]
@@ -65,6 +65,9 @@ namespace SOOS_Auction.Models
         public bool ReturnAfterBuyingIsForbidden { get; set; }
         //Payment
 
+        [Display(Name = "Оплата с помощью баланса сайта?")]
+        public bool isPaymentBySite { get; set; }
+
         [Required]
         [Display(Name = "Наличными при встрече")]
         public bool Cash { get; set; }
@@ -85,7 +88,6 @@ namespace SOOS_Auction.Models
         public int LotId { get; set; } //ok
         [Required]
         [Display(Name = "Краткая информация о лоте")]
-        [MaxLength(30)]
         public string Name { get; set; } //ok
 
         [Required]
@@ -105,7 +107,6 @@ namespace SOOS_Auction.Models
         public double CurrentPrice { get; set; } //ok
 
         [Required]
-        [MaxLength(300)]
         [Display(Name = "Подробное описание вашего лота")]
         public string Description { get; set; } //ok
 
@@ -123,9 +124,14 @@ namespace SOOS_Auction.Models
         [Display(Name = "Раздел:")]
         public string SectionName { get; set; } //ok
 
+        public int SectionId { get; set; }
+
         [Required]
         [Display(Name = "Категория:")]
         public string CategoryName { get; set; } //ok
+
+        public int CategoryId { get; set; }
+
 
         //Receiving
         [Required]
@@ -147,7 +153,13 @@ namespace SOOS_Auction.Models
         [Required]
         [Display(Name = "Невозможен возврат товара после поупки")]
         public bool ReturnAfterBuyingIsForbidden { get; set; } //ok
+
+        [Display(Name = "Подробнее об оплате и доставке:")]
+        public string PostPaymentAdditionalInformation { get; set; }
         //Payment
+
+        [Display(Name = "Оплата с помощью баланса сайта?")]
+        public bool isPaymentBySite { get; set; }
 
         [Required]
         [Display(Name = "Наличными при встрече")]
@@ -158,9 +170,6 @@ namespace SOOS_Auction.Models
         [Required]
         [Display(Name = "Полная предоплата до отправки лота по почте")]
         public bool FullPrepaymentPostSending { get; set; }
-
-        [Display(Name = "Подробнее об оплате и доставке:")]
-        public string PostPaymentAdditionalInformation { get; set; }
 
         //users
 
@@ -182,10 +191,24 @@ namespace SOOS_Auction.Models
 
     }
 
+    public class LotPreviewDetails
+    {
+        public int LotId { get; set; }
+        public string Name { get; set; } //ok
+        public string ImageUrl { get; set; }
+        public double CurrentPrice { get; set; }
+        public string FinishDate { get; set; }
+        public int BidsCount { get; set; }
+        public string Location { get; set; }
+        public string Payment { get; set; }
+        public string State { get; set; }
+
+    }
     public class BidDetails
     {
         public Bid bid { get;set; }
         public string UserName { get; set; }
+        public string UserId{ get; set; }
         public string LotOwnerUserName { get; set; }
         public string CurrentUserName { get; set; }
         public string LotState { get; set; }

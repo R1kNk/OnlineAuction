@@ -2,6 +2,7 @@
 using Microsoft.AspNet.Identity.EntityFramework;
 using Microsoft.AspNet.Identity.Owin;
 using SOOS_Auction.AuctionDatabase.Models;
+using SOOS_Auction.AuctionGoogleDrive;
 using SOOS_Auction.Models;
 using System;
 using System.Collections.Generic;
@@ -34,11 +35,6 @@ namespace SOOS_Auction.Controllers
         public UserStore<ApplicationUser> UserStore { get => _userStore ?? new UserStore<ApplicationUser>(new ApplicationDbContext()); set => _userStore = value; }
         public RoleManager<IdentityRole> RoleManager { get => _roleManager ?? new RoleManager<IdentityRole>(new RoleStore<IdentityRole>(new ApplicationDbContext())); set => _roleManager = value; }
 
-        public ActionResult Index()
-        {
-            return View();
-        }
-
         // GET: AuctionManager
         public ActionResult Users()
         {
@@ -49,12 +45,12 @@ namespace SOOS_Auction.Controllers
         }
 
         // GET: AuctionManager/Details/mail?=...
-        public ActionResult UserDetails(string mail)
+        public ActionResult UserDetails(string userId)
         {
             ApplicationUser appUser = new ApplicationUser();
-            if(mail==null) return new HttpStatusCodeResult(HttpStatusCode.BadRequest);
+            if(userId == null) return new HttpStatusCodeResult(HttpStatusCode.BadRequest);
 
-            appUser = UserManager.FindByEmail(mail);
+            appUser = UserManager.FindById(userId);
             
             if (appUser == null) return new HttpStatusCodeResult(HttpStatusCode.NotFound);
             List<IdentityUserRole> roles = appUser.Roles.ToList();
@@ -70,12 +66,12 @@ namespace SOOS_Auction.Controllers
 
         // GET: AuctionManager/Edit/mail?=...
         [Authorize(Roles ="admin")]
-        public ActionResult UserEdit(string mail)
+        public ActionResult UserEdit(string userId)
         {
             ApplicationUser appUser = new ApplicationUser();
-            if (mail == null) return new HttpStatusCodeResult(HttpStatusCode.BadRequest);
+            if (userId == null) return new HttpStatusCodeResult(HttpStatusCode.BadRequest);
 
-            appUser = UserManager.FindByEmail(mail);
+            appUser = UserManager.FindById(userId);
 
             if (appUser == null) return new HttpStatusCodeResult(HttpStatusCode.NotFound);
 
@@ -142,13 +138,21 @@ namespace SOOS_Auction.Controllers
         }
 
         // GET: AuctionManager/Delete/5
-        public ActionResult UserDelete(string mail)
+        public ActionResult UserDelete(string userId)
         {
-            if (mail == null) return new HttpStatusCodeResult(HttpStatusCode.BadRequest);
+            AuctionContext context = new AuctionContext();
+            if (userId == null) return new HttpStatusCodeResult(HttpStatusCode.BadRequest);
 
-            var user = UserManager.FindByEmail(mail);
-
+            var user = UserManager.FindById(userId);
+            
             if (user == null) return new HttpStatusCodeResult(HttpStatusCode.NotFound);
+            //lots of user delete
+            List<Lot> userLots = context.Lots.Where(p => p.UserId == user.Id).ToList();
+            foreach (var lot in userLots) { context.Lots.Remove(lot); }
+            List<Bid> userbids = context.Bids.Where(p => p.User == user.Id).ToList();
+            foreach (var bid in userbids)
+            { context.Bids.Remove(bid);}
+
 
             var result =  UserManager.Delete(user);
             if (result.Succeeded)
@@ -161,11 +165,43 @@ namespace SOOS_Auction.Controllers
             }
         }
 
-        public ActionResult Lots()
+        [Authorize(Roles = "admin, moder")]
+        public ActionResult Lots(string lotsType)
         {
             AuctionContext auctionContext = new AuctionContext();
-            List<Lot> lots = auctionContext.Lots.Include(p=>p.Category).ToList();
-            return View(lots);
+            List<Lot> lots;
+            if (lotsType == "all")
+            {
+                lots = auctionContext.Lots.Include(p => p.Category).Include(p => p.Bids).Where(p=>p.State=="pending").ToList();
+                List<Lot> started = auctionContext.Lots.Include(p => p.Category).Include(p => p.Bids).Where(p => p.State == "started").ToList();
+                List<Lot> finished = auctionContext.Lots.Include(p => p.Category).Include(p => p.Bids).Where(p => p.State == "finished").ToList();
+                List<Lot> rejected = auctionContext.Lots.Include(p => p.Category).Include(p => p.Bids).Where(p => p.State == "rejected").ToList();
+                lots.AddRange(started);
+                lots.AddRange(finished);
+                lots.AddRange(rejected);
+                return View(lots);
+            }
+            if (lotsType == "started")
+            {
+                lots = auctionContext.Lots.Include(p => p.Category).Include(p => p.Bids).Where(p=>p.State=="started").ToList();
+                return View(lots);
+            }
+            if (lotsType == "pending")
+            {
+                lots = auctionContext.Lots.Include(p => p.Category).Include(p => p.Bids).Where(p => p.State == "pending").ToList();
+                return View(lots);
+            }
+            if (lotsType == "finished")
+            {
+                lots = auctionContext.Lots.Include(p => p.Category).Include(p => p.Bids).Where(p => p.State == "finished").ToList();
+                return View(lots);
+            }
+            if (lotsType == "rejected")
+            {
+                lots = auctionContext.Lots.Include(p => p.Category).Include(p => p.Bids).Where(p => p.State == "rejected").ToList();
+                return View(lots);
+            }
+            else return new HttpStatusCodeResult(HttpStatusCode.BadRequest);    
         }
 
         [Authorize(Roles = "admin, moder")]
@@ -185,7 +221,7 @@ namespace SOOS_Auction.Controllers
                 FinishDate = FinishDate.AddDays(findedLot.DaysDuration);
                 findedLot.FinishDate = FinishDate;
                 context.SaveChanges();
-                return RedirectToAction("Lots", new { id = findedLot.LotId });
+                return RedirectToAction("Lots", new { lotsType = "all" });
 
             }
             return new HttpStatusCodeResult(HttpStatusCode.BadRequest);
@@ -204,23 +240,37 @@ namespace SOOS_Auction.Controllers
             {
                 findedLot.State = "rejected";
                 context.SaveChanges();
-                return RedirectToAction("Lots", new { id = findedLot.LotId });
+                return RedirectToAction("Lots", new { lotsType = "all" });
             }
             return new HttpStatusCodeResult(HttpStatusCode.BadRequest);
         }
 
-        [Authorize(Roles = "admin")]
+        [Authorize(Roles = "admin, moder")]
         public ActionResult DeleteLot(int? id)
         {
             if (id == null) return new HttpStatusCodeResult(HttpStatusCode.BadRequest);
             Lot findedLot;
             AuctionContext context = new AuctionContext();
 
-            findedLot = context.Lots.Where(p => p.LotId == id).SingleOrDefault();
+            findedLot = context.Lots.Include(path=>path.Bids).Where(p => p.LotId == id).SingleOrDefault();
             if (findedLot == null) return new HttpStatusCodeResult(HttpStatusCode.NotFound);
+            if (findedLot.isPaymentBySite)
+            {
+                if (findedLot.Bids.Count != 0)
+                {
+                    List<string> participatedUsersId = findedLot.Bids.Select(p => p.User).Distinct().ToList();
+                    foreach (var userId in participatedUsersId)
+                    {
+                        double MaxPrice = findedLot.Bids.Where(p => p.User == userId).Select(p => p.Price).Max();
+                        ApplicationUser bidder = UserManager.FindById(userId);
+                        bidder.BusyBalance -= MaxPrice;
+                        UserManager.Update(bidder);
+                    }
+                }
+            }
             context.Lots.Remove(findedLot);
             context.SaveChanges();
-            return RedirectToAction("Lots", new { id = findedLot.LotId });
+            return RedirectToAction("Lots", new { lotsType = "all" });
           
         }
 
@@ -232,9 +282,164 @@ namespace SOOS_Auction.Controllers
 
             findedLot = context.Lots.Include(p=>p.Category).Include(p => p.LotPayment).Include(p => p.LotReceiving).Include(p => p.Bids).Where(p => p.LotId == id).SingleOrDefault();
             if (findedLot == null) return new HttpStatusCodeResult(HttpStatusCode.NotFound);
-  
-            return View(findedLot);
+            LotDetails details = LotToLotDetailsModel(findedLot);
+            if (details == null) return new HttpStatusCodeResult(HttpStatusCode.BadRequest);
+            return View(details);
         }
 
+        public ActionResult Reviews(string reviewsType)
+        {
+            AuctionContext auctionContext = new AuctionContext();
+            List<UserReview> reviews = new List<UserReview>(); ;
+            if (reviewsType == "all")
+            {
+                List<UserReview> pending = auctionContext.Reviews.Where(p => p.State == "pending").ToList();
+                List<UserReview> checkedRev = auctionContext.Reviews.Where(p => p.State == "checked").ToList();
+                List<UserReview> rejected = auctionContext.Reviews.Where(p => p.State == "rejected").ToList();
+                reviews.AddRange(pending);
+                reviews.AddRange(checkedRev);
+                reviews.AddRange(rejected);
+                return View(reviews);
+            }
+            
+            if (reviewsType == "pending")
+            {
+                reviews = auctionContext.Reviews.Where(p => p.State == "pending").ToList();
+                return View(reviews);
+            }
+            if (reviewsType == "checked")
+            {
+                reviews = auctionContext.Reviews.Where(p => p.State == "checked").ToList();
+                return View(reviews);
+            }
+            if (reviewsType == "rejected")
+            {
+                reviews = auctionContext.Reviews.Where(p => p.State == "rejected").ToList();
+                return View(reviews);
+            }
+            else return new HttpStatusCodeResult(HttpStatusCode.BadRequest);
+        }
+
+        [Authorize(Roles = "admin, moder")]
+        public ActionResult AcceptReview(int? id)
+        {
+            if (id == null) return new HttpStatusCodeResult(HttpStatusCode.BadRequest);
+            UserReview findedReview;
+            AuctionContext context = new AuctionContext();
+
+            findedReview = context.Reviews.Where(p => p.UserReviewId == id).SingleOrDefault();
+            if (findedReview == null) return new HttpStatusCodeResult(HttpStatusCode.NotFound);
+            if (findedReview.State == "pending")
+            {
+                findedReview.State = "checked";
+                context.SaveChanges();
+                ApplicationUser user = UserManager.FindById(findedReview.UserId);
+                if (user != null)
+                {
+                    if (findedReview.isPositive) user.PositiveReview += 1;
+                    else user.NegativeReview += 1;
+                    UserManager.Update(user);
+                }
+                return RedirectToAction("Reviews", new { reviewsType = "all" });
+
+            }
+            return new HttpStatusCodeResult(HttpStatusCode.BadRequest);
+        }
+
+        [Authorize(Roles = "admin, moder")]
+        public ActionResult RejectReview(int? id)
+        {
+            if (id == null) return new HttpStatusCodeResult(HttpStatusCode.BadRequest);
+            UserReview findedReview;
+            AuctionContext context = new AuctionContext();
+
+            findedReview = context.Reviews.Where(p => p.UserReviewId == id).SingleOrDefault();
+            if (findedReview == null) return new HttpStatusCodeResult(HttpStatusCode.NotFound);
+            if (findedReview.State == "pending")
+            {
+                findedReview.State = "rejected";
+                context.SaveChanges();
+                return RedirectToAction("Reviews", new { reviewsType = "all" });
+
+            }
+            return new HttpStatusCodeResult(HttpStatusCode.BadRequest);
+        }
+
+        [Authorize(Roles = "admin, moder")]
+        public ActionResult DeleteReview(int? id)
+        {
+            if (id == null) return new HttpStatusCodeResult(HttpStatusCode.BadRequest);
+            UserReview findedReview;
+            AuctionContext context = new AuctionContext();
+
+            findedReview = context.Reviews.Where(p => p.UserReviewId == id).SingleOrDefault();
+            if (findedReview == null) return new HttpStatusCodeResult(HttpStatusCode.NotFound);
+            if (findedReview.State != "pending")
+            {
+                ApplicationUser user = UserManager.FindById(findedReview.UserId);
+                if (user != null)
+                {
+                    if (findedReview.isPositive) user.PositiveReview -= 1;
+                    else user.NegativeReview -= 1;
+                    UserManager.Update(user);
+                }
+                context.Entry(findedReview).State = EntityState.Deleted;
+                context.SaveChanges();
+                return RedirectToAction("Reviews", new { reviewsType = "all" });
+
+            }
+            return new HttpStatusCodeResult(HttpStatusCode.BadRequest);
+
+        }
+
+        LotDetails LotToLotDetailsModel(Lot findedLot) 
+        {
+            if (findedLot.LotPayment == null || findedLot.LotReceiving == null) return null;
+            AuctionContext context = new AuctionContext();
+
+            LotDetails lotDetails = new LotDetails();
+            lotDetails.UserId = findedLot.UserId;
+            ApplicationUser user;
+            user = UserManager.Users.Where(p => p.Id == findedLot.UserId).SingleOrDefault();
+            if (user == null) return null;
+            lotDetails.UserName = user.UserName;
+            lotDetails.UserId = user.Id;
+            lotDetails.UserPositiveReviews = user.PositiveReview;
+            lotDetails.UserNegativeReviews = user.NegativeReview;
+            lotDetails.UserLocation = user.UserLocation;
+            lotDetails.UserAvatarUrl = user.AvatarUrl;
+
+            lotDetails.LotId = findedLot.LotId;
+            lotDetails.Name = findedLot.Name;
+            lotDetails.MinimalPrice = findedLot.MinimalPrice;
+            lotDetails.MinimalStep = findedLot.MinimalStep;
+            lotDetails.CurrentPrice = findedLot.CurrentPrice;
+            lotDetails.Description = findedLot.Description;
+            lotDetails.DaysDuration = findedLot.DaysDuration;
+            lotDetails.StartDate = findedLot.StartDate;
+            lotDetails.FinishDate = findedLot.FinishDate;
+            Category currentCategory = context.Categories.Include(p => p.Section).Where(p => p.CategoryId == findedLot.CategoryId).Single();
+            lotDetails.SectionName = currentCategory.Section.Name;
+            lotDetails.CategoryName = currentCategory.Name;
+            lotDetails.Location = findedLot.LotReceiving.Location;
+            lotDetails.ByPost = findedLot.LotReceiving.ByPost;
+            lotDetails.DeliveryInPerson = findedLot.LotReceiving.DeliveryInPerson;
+            lotDetails.ByPostToAnotherCountry = findedLot.LotReceiving.ByPostToAnotherCountry;
+            lotDetails.ReturnAfterBuyingIsForbidden = findedLot.LotReceiving.ReturnAfterBuyingIsForbidden;
+            lotDetails.Cash = findedLot.LotPayment.Cash;
+            lotDetails.NonCash = findedLot.LotPayment.NonCash;
+            lotDetails.FullPrepaymentPostSending = findedLot.LotPayment.FullPrepaymentPostSending;
+            lotDetails.UserImagesID = FileApiMethods.GetFilesIDFromFolder(findedLot.ImagesUrl);
+            if (lotDetails.UserImagesID == null) return null;
+            lotDetails.Bids = findedLot.Bids;
+            lotDetails.State = findedLot.State;
+            lotDetails.WinnerId = findedLot.WinnerId;
+            ApplicationUser winner = UserManager.Users.Where(p => p.Id == findedLot.WinnerId).SingleOrDefault();
+            if (winner != null)
+            {
+                lotDetails.WinnerName = winner.UserName;
+            }
+            return lotDetails;
+        }
     }
 }

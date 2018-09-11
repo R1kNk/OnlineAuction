@@ -242,6 +242,7 @@
     <Compile Include="AuctionDatabase\Models\LotReceiving.cs" />
     <Compile Include="AuctionDatabase\Models\LotPayment.cs" />
     <Compile Include="AuctionDatabase\Models\Section.cs" />
+    <Compile Include="AuctionDatabase\Models\UserReview.cs" />
     <Compile Include="AuctionDatabase\Shared\ApplicationDBContextInitializer.cs" />
     <Compile Include="AuctionDatabase\Shared\AuctionDatabaseInitializer.cs" />
     <Compile Include="AuctionDatabase\Shared\DropCreateIfEmpty.cs" />
@@ -259,9 +260,9 @@
     </Compile>
     <Compile Include="Hubs\LotDetailsHub.cs" />
     <Compile Include="Hubs\TimerUpdateHub.cs" />
-    <Compile Include="Migrations\201806191624186_InitialCreate.cs" />
-    <Compile Include="Migrations\201806191624186_InitialCreate.Designer.cs">
-      <DependentUpon>201806191624186_InitialCreate.cs</DependentUpon>
+    <Compile Include="Migrations\201806242241064_InitialCreate.cs" />
+    <Compile Include="Migrations\201806242241064_InitialCreate.Designer.cs">
+      <DependentUpon>201806242241064_InitialCreate.cs</DependentUpon>
     </Compile>
     <Compile Include="Migrations\Configuration.cs" />
     <Compile Include="Models\AccountViewModels.cs" />
@@ -337,8 +338,6 @@
     <Content Include="Views\Shared\Lockout.cshtml" />
     <Content Include="Views\Shared\_LoginPartial.cshtml" />
     <Content Include="Views\AuctionManager\Users.cshtml" />
-    <Content Include="Views\AuctionManager\Index.cshtml" />
-    <Content Include="Views\AuctionManager\UserDetails.cshtml" />
     <Content Include="Views\AuctionManager\UserEdit.cshtml" />
     <Content Include="Views\Lot\Create.cshtml" />
     <Content Include="Views\Lot\GetCategories.cshtml" />
@@ -346,6 +345,11 @@
     <Content Include="Views\AuctionManager\ModerLotDetails.cshtml" />
     <Content Include="Views\AuctionManager\Lots.cshtml" />
     <Content Include="Views\Lot\GetBids.cshtml" />
+    <Content Include="Views\Lot\ManageGetLots.cshtml" />
+    <Content Include="Views\Account\ViewProfile.cshtml" />
+    <Content Include="Views\AuctionManager\Reviews.cshtml" />
+    <Content Include="Views\Manage\ManageGetReviews.cshtml" />
+    <Content Include="Views\Lot\Index.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />
@@ -368,8 +372,8 @@
     <Service Include="{508349B6-6B84-4DF5-91F0-309BEEBAD82D}" />
   </ItemGroup>
   <ItemGroup>
-    <EmbeddedResource Include="Migrations\201806191624186_InitialCreate.resx">
-      <DependentUpon>201806191624186_InitialCreate.cs</DependentUpon>
+    <EmbeddedResource Include="Migrations\201806242241064_InitialCreate.resx">
+      <DependentUpon>201806242241064_InitialCreate.cs</DependentUpon>
     </EmbeddedResource>
   </ItemGroup>
   <PropertyGroup>

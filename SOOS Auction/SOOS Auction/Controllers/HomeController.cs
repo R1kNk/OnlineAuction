@@ -13,7 +13,7 @@ namespace SOOS_Auction.Controllers
 {
     public class HomeController : Controller
     {
-        [Authorize(Roles ="admin,moder")]
+        [Authorize]
         public ActionResult Index()
         {
             ApplicationDBContext contt = new ApplicationDBContext();

@@ -1,0 +1,104 @@
+﻿@model List<SOOS_Auction.AuctionDatabase.Models.UserReview>
+@{
+    ViewBag.Title = "Отзывы";
+}
+<div style="margin-left:10px;">
+    <h3>Лоты</h3>
+    <ul style="list-style-type:none; margin:0 0 10px 0; padding:0 0 0 0;">
+        <li>
+            <a href="@Url.Action("Reviews", new { reviewsType = "all" })" class="btn btn-info" role="button">Все отзывы</a>
+            <a href="@Url.Action("Reviews", new { reviewsType = "pending" })" class="btn btn-info" role="button">Ожидающие подтверждения</a>
+            <a href="@Url.Action("Reviews", new { reviewsType = "checked" })" class="btn btn-info" role="button">Проверенные</a>
+            <a href="@Url.Action("Reviews", new { reviewsType = "rejected" })" class="btn btn-info" role="button">Отклоненные</a>
+        </li>
+    </ul>
+    <table class="table">
+        <tr>
+            <th>
+                @Html.DisplayName("Id")
+            </th>
+            <th>
+                @Html.DisplayName("Дата отзыва")
+            </th>
+            <th>
+                @Html.DisplayName("Положительный?")
+            </th>
+            <th>
+                @Html.DisplayName("Состояние")
+            </th>
+            <th>
+                @Html.DisplayName("Текст отзыва")
+            </th>
+            <th>
+                @Html.DisplayName("Отзыв на пользователя:")
+            </th>
+            <th>
+                @Html.DisplayName("Отзыв отправил")
+            </th>
+            <th></th>
+            <th></th>
+        </tr>
+
+        @foreach (var item in Model)
+        {
+            <tr>
+                <td>
+                    @Html.DisplayFor(modelItem => item.UserReviewId)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.date)
+                </td>
+                <td>
+                    @if (item.isPositive)
+                    {
+                        @Html.DisplayName("Да")
+                    }
+                    else if (item.isNegative)
+                    {
+                        @Html.DisplayName("Нет")
+
+                    }
+                </td>
+                <td>
+                    @if (item.State == "pending")
+                    {
+                        @Html.DisplayName("Ожидает подтверждения")
+
+                    }
+                    else if (item.State == "checked")
+                    {
+                        @Html.DisplayName("Подтвержден")
+                    }
+                    else
+                    {
+                        @Html.DisplayName("Отклонен")
+                    }
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.Text)
+                </td>
+                <td>
+                    <a href="@Url.Action("ViewProfile","Account", new {userId=item.UserId})" style="color:#080E9B; font-size:15px;">@item.UserId</a>
+
+                </td>
+                <td>
+                    <a href="@Url.Action("ViewProfile","Account", new {userId=item.UserIdFrom})" style="color:#080E9B; font-size:15px;">@item.UserIdFrom</a>
+                </td>
+                @if (item.State == "pending")
+                {
+                    <td>
+                        @Html.ActionLink("Подтвердить отзыв", "AcceptReview", new { id = item.UserReviewId }) |
+                        @Html.ActionLink("Отклонить отзыв", "RejectReview", new { id = item.UserReviewId })
+                    </td>
+                }
+                @if (item.State != "pending")
+                {
+                    <td>
+                        @Html.ActionLink("Удалить отзыв", "DeleteReview", new { id = item.UserReviewId })
+                    </td>
+                }
+            </tr>
+        }
+
+    </table>
+</div>

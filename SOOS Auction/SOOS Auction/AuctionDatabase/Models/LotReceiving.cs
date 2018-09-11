@@ -23,6 +23,8 @@ namespace SOOS_Auction.AuctionDatabase.Models
 
         [Required]
         public bool ReturnAfterBuyingIsForbidden { get; set; }
+            
+        public string AdditionalInformation { get; set; }
 
         public virtual Lot Lot { get; set; }
     }
